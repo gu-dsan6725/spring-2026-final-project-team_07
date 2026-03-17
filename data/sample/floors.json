@@ -1,0 +1,33 @@
+[
+  {
+    "id": "combat_floor",
+    "floor_type": "combat",
+    "description_template": "A hostile presence blocks your path upward.",
+    "enemy_pool": [
+      "goblin_bruiser",
+      "skeleton_guard",
+      "cult_acolyte",
+      "tower_rat_swarm",
+      "iron_sentinel"
+    ],
+    "weight": 5
+  },
+  {
+    "id": "puzzle_floor",
+    "floor_type": "puzzle",
+    "description_template": "The room is quiet, but some mechanism bars the way forward.",
+    "puzzle_pool": [
+      "riddle_echo",
+      "sequence_fibonacci",
+      "lever_logic"
+    ],
+    "weight": 3
+  },
+  {
+    "id": "rest_floor",
+    "floor_type": "rest",
+    "description_template": "A faintly glowing chamber offers a brief moment of safety.",
+    "heal_amount": 5,
+    "weight": 2
+  }
+]

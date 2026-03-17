@@ -1,0 +1,44 @@
+[
+  {
+    "id": "riddle_echo",
+    "name": "The Echo Riddle",
+    "type": "riddle",
+    "prompt": "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
+    "answer": "echo",
+    "max_attempts": 3,
+    "success_reward": {
+      "gold": 5
+    },
+    "failure_penalty": {
+      "hp_loss": 3
+    }
+  },
+  {
+    "id": "sequence_fibonacci",
+    "name": "The Number Sequence",
+    "type": "sequence",
+    "prompt": "What number comes next in the sequence: 2, 3, 5, 8, 13, ?",
+    "answer": "21",
+    "max_attempts": 2,
+    "success_reward": {
+      "gold": 6
+    },
+    "failure_penalty": {
+      "hp_loss": 2
+    }
+  },
+  {
+    "id": "lever_logic",
+    "name": "The Lever Puzzle",
+    "type": "logic",
+    "prompt": "There are three levers: red, blue, and gold. Pulling red disables traps. Pulling blue opens the door only if traps are disabled. Which lever should be pulled first?",
+    "answer": "red",
+    "max_attempts": 2,
+    "success_reward": {
+      "gold": 4
+    },
+    "failure_penalty": {
+      "hp_loss": 4
+    }
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "goblin_bruiser",
+    "name": "Goblin Bruiser",
+    "description": "A stocky goblin with crude armor and a heavy club. It charges recklessly.",
+    "hp": 10,
+    "attack_bonus": 3,
+    "damage": "1d6+2",
+    "behavior": "aggressive",
+    "reward": {
+      "gold": 5
+    }
+  },
+  {
+    "id": "skeleton_guard",
+    "name": "Skeleton Guard",
+    "description": "A rattling skeleton clad in rusted armor, guarding the stairwell.",
+    "hp": 12,
+    "attack_bonus": 2,
+    "damage": "1d6+1",
+    "behavior": "defensive",
+    "reward": {
+      "gold": 6
+    }
+  },
+  {
+    "id": "cult_acolyte",
+    "name": "Cult Acolyte",
+    "description": "A robed figure whispering strange incantations, eyes glowing faintly.",
+    "hp": 8,
+    "attack_bonus": 4,
+    "damage": "1d8",
+    "behavior": "caster",
+    "reward": {
+      "gold": 7
+    }
+  },
+  {
+    "id": "tower_rat_swarm",
+    "name": "Rat Swarm",
+    "description": "A writhing mass of tower rats that overwhelms with numbers.",
+    "hp": 9,
+    "attack_bonus": 3,
+    "damage": "1d4+2",
+    "behavior": "swarm",
+    "reward": {
+      "gold": 4
+    }
+  },
+  {
+    "id": "iron_sentinel",
+    "name": "Iron Sentinel",
+    "description": "A slow-moving construct of rusted iron plates. It strikes with heavy force.",
+    "hp": 16,
+    "attack_bonus": 2,
+    "damage": "1d10",
+    "behavior": "slow_heavy",
+    "reward": {
+      "gold": 10
+    }
+  }
+]
