@@ -72,7 +72,8 @@ def get_memory(user_id: str) -> list[dict]:
         List of memory dicts, each with at least a "memory" key.
     """
     client = _get_client()
-    memories = client.get_all(user_id=user_id)
+    response = client.get_all(filters={"user_id": user_id})
+    memories = response.get("results", response) if isinstance(response, dict) else response
     logger.info("get_memory user=%s returned %s memories", user_id, len(memories))
     return memories
 
@@ -122,117 +123,128 @@ def delete_memory(memory_id: str) -> dict:
 
 def profile_from_memories(user_id: str) -> dict:
     """
-    Reconstruct a UserProfile-compatible dict from stored memories using
-    targeted semantic searches per field.
+    Reconstruct a UserProfile-compatible dict from stored memories.
+
+    Reads structured values from metadata["value"] — set by the intake tools
+    on every write. Falls back to text parsing for any legacy memories that
+    predate the metadata approach.
 
     Returns a partial dict — only fields with stored memories are included.
     The caller is responsible for supplying defaults for missing fields.
     """
-    client = _get_client()
-
-    def _first(query: str) -> str | None:
-        response = client.search(query, filters={"user_id": user_id}, limit=1)
-        results = response.get("results", response) if isinstance(response, dict) else response
-        return results[0].get("memory") if results else None
-
-    def _list_field(query: str) -> list[str]:
-        result = _first(query)
-        if not result:
-            return []
-        # Strip common prefixes and split on commas
-        for prefix in [
-            "User's preferred meal categories are: ",
-            "User dislikes these ingredients: ",
-            "User is allergic to: ",
-        ]:
-            if result.startswith(prefix):
-                items = result[len(prefix):].rstrip(".")
-                return [i.strip() for i in items.split(",") if i.strip()]
-        return []
-
+    memories = get_memory(user_id)
     profile: dict = {"user_id": user_id}
 
-    goal = _first("nutrition goal")
-    if goal:
-        for g in ("fat_loss", "muscle_gain", "maintenance"):
-            if g in goal:
-                profile["goal"] = g
-                break
+    # Fields that UserProfile expects as list[str] — Mem0 serializes these back
+    # as plain strings even when we stored a list, so we re-split on commas.
+    _LIST_FIELDS = {"allergies", "disliked_ingredients", "preferred_categories"}
 
-    weight = _first("user weighs")
-    if weight:
-        try:
-            profile["weight_lbs"] = float("".join(c for c in weight.split("weighs")[1] if c.isdigit() or c == "."))
-        except Exception:
-            pass
+    # --- primary path: read exact values stored in metadata ---
+    for m in memories:
+        meta = m.get("metadata") or {}
+        field = meta.get("field")
+        value = meta.get("value")
+        if field and value is not None:
+            if field in _LIST_FIELDS and isinstance(value, str):
+                value = [v.strip() for v in value.split(",") if v.strip()]
+            profile[field] = value
 
-    height = _first("user height inches")
-    if height:
-        try:
-            profile["height_in"] = float("".join(c for c in height.split("height is")[1] if c.isdigit() or c == "."))
-        except Exception:
-            pass
+    # --- fallback: text parsing for memories without metadata values ---
+    text_memories = [
+        m.get("memory", "")
+        for m in memories
+        if not (m.get("metadata") or {}).get("value")
+    ]
 
-    age = _first("user age years old")
-    if age:
-        try:
-            profile["age"] = int("".join(c for c in age.split("is")[1] if c.isdigit()))
-        except Exception:
-            pass
+    def _search_text(keyword: str) -> str | None:
+        for t in text_memories:
+            if keyword.lower() in t.lower():
+                return t
+        return None
 
-    sex = _first("user sex")
-    if sex:
-        for s in ("male", "female"):
-            if s in sex:
-                profile["sex"] = s
-                break
+    if "goal" not in profile:
+        hit = _search_text("goal")
+        if hit:
+            for g in ("fat_loss", "muscle_gain", "maintenance"):
+                if g in hit:
+                    profile["goal"] = g
+                    break
 
-    activity = _first("activity level")
-    if activity:
-        for level in ("sedentary", "light", "moderate", "active", "very_active"):
-            if level in activity:
-                profile["activity_level"] = level
-                break
+    if "weight_lbs" not in profile:
+        hit = _search_text("weighs")
+        if hit:
+            try:
+                profile["weight_lbs"] = float("".join(c for c in hit.split("weighs")[1] if c.isdigit() or c == "."))
+            except Exception:
+                pass
 
-    cost = _first("maximum cost per serving")
-    if cost:
-        try:
-            profile["max_cost_per_serving"] = float("".join(c for c in cost if c.isdigit() or c == "."))
-        except Exception:
-            pass
+    if "height_in" not in profile:
+        hit = _search_text("height")
+        if hit:
+            try:
+                profile["height_in"] = float("".join(c for c in hit.split("height")[1] if c.isdigit() or c == "."))
+            except Exception:
+                pass
 
-    time = _first("meals take no more than minutes")
-    if time:
-        try:
-            profile["max_total_time"] = int("".join(c for c in time if c.isdigit()))
-        except Exception:
-            pass
+    if "age" not in profile:
+        hit = _search_text("years old")
+        if hit:
+            try:
+                import re
+                m = re.search(r"(\d+)\s*years old", hit)
+                if m:
+                    profile["age"] = int(m.group(1))
+            except Exception:
+                pass
 
-    ingredients = _first("at most ingredients")
-    if ingredients:
-        try:
-            profile["max_ingredient_count"] = int("".join(c for c in ingredients if c.isdigit()))
-        except Exception:
-            pass
+    if "sex" not in profile:
+        hit = _search_text("sex")
+        if hit:
+            for s in ("male", "female"):
+                if s in hit.lower():
+                    profile["sex"] = s
+                    break
 
-    meals_per_day = _first("meals per day")
-    if meals_per_day:
-        try:
-            profile["meals_per_day"] = int("".join(c for c in meals_per_day if c.isdigit()))
-        except Exception:
-            pass
+    if "activity_level" not in profile:
+        hit = _search_text("activity")
+        if hit:
+            for level in ("sedentary", "light", "moderate", "active", "very_active"):
+                if level in hit.lower():
+                    profile["activity_level"] = level
+                    break
 
-    preferred = _list_field("preferred meal categories")
-    if preferred:
-        profile["preferred_categories"] = preferred
+    if "max_cost_per_serving" not in profile:
+        hit = _search_text("cost per serving")
+        if hit:
+            try:
+                import re
+                m = re.search(r"\$?([\d.]+)", hit)
+                if m:
+                    profile["max_cost_per_serving"] = float(m.group(1))
+            except Exception:
+                pass
 
-    dislikes = _list_field("dislikes ingredients")
-    if dislikes:
-        profile["disliked_ingredients"] = dislikes
+    if "max_total_time" not in profile:
+        hit = _search_text("minutes")
+        if hit:
+            try:
+                import re
+                m = re.search(r"(\d+)\s*minutes", hit)
+                if m:
+                    profile["max_total_time"] = int(m.group(1))
+            except Exception:
+                pass
 
-    allergies = _list_field("allergic to")
-    if allergies:
-        profile["allergies"] = allergies
+    if "meals_per_day" not in profile:
+        hit = _search_text("meals per day")
+        if hit:
+            try:
+                import re
+                m = re.search(r"(\d+)\s*meals per day", hit)
+                if m:
+                    profile["meals_per_day"] = int(m.group(1))
+            except Exception:
+                pass
 
     logger.info("profile_from_memories user=%s fields=%s", user_id, list(profile.keys()))
     return profile

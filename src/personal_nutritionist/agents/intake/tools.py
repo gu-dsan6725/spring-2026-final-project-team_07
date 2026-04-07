@@ -53,7 +53,7 @@ def update_goal(user_id: str, goal: str) -> dict:
     valid = {"fat_loss", "muscle_gain", "maintenance"}
     if goal not in valid:
         return {"status": "error", "message": f"goal must be one of {valid}"}
-    result = add_memory(user_id, f"User's nutrition goal is {goal}.", metadata={"field": "goal"})
+    result = add_memory(user_id, f"User's nutrition goal is {goal}.", metadata={"field": "goal", "value": goal})
     logger.info("update_goal user=%s goal=%s", user_id, goal)
     return {"status": "ok", "goal": goal}
 
@@ -78,18 +78,18 @@ def update_body_stats(
     """
     stored = []
     if weight_lbs is not None:
-        add_memory(user_id, f"User weighs {weight_lbs} lbs.", metadata={"field": "weight_lbs"})
+        add_memory(user_id, f"User weighs {weight_lbs} lbs.", metadata={"field": "weight_lbs", "value": weight_lbs})
         stored.append(f"weight_lbs={weight_lbs}")
     if height_in is not None:
-        add_memory(user_id, f"User's height is {height_in} inches.", metadata={"field": "height_in"})
+        add_memory(user_id, f"User's height is {height_in} inches.", metadata={"field": "height_in", "value": height_in})
         stored.append(f"height_in={height_in}")
     if age is not None:
-        add_memory(user_id, f"User is {age} years old.", metadata={"field": "age"})
+        add_memory(user_id, f"User is {age} years old.", metadata={"field": "age", "value": age})
         stored.append(f"age={age}")
     if sex is not None:
         if sex not in {"male", "female"}:
             return {"status": "error", "message": "sex must be 'male' or 'female'"}
-        add_memory(user_id, f"User's sex is {sex}.", metadata={"field": "sex"})
+        add_memory(user_id, f"User's sex is {sex}.", metadata={"field": "sex", "value": sex})
         stored.append(f"sex={sex}")
     logger.info("update_body_stats user=%s stored=%s", user_id, stored)
     return {"status": "ok", "updated": stored}
@@ -110,7 +110,7 @@ def update_activity_level(user_id: str, activity_level: str) -> dict:
     add_memory(
         user_id,
         f"User's activity level is {activity_level}.",
-        metadata={"field": "activity_level"},
+        metadata={"field": "activity_level", "value": activity_level},
     )
     logger.info("update_activity_level user=%s level=%s", user_id, activity_level)
     return {"status": "ok", "activity_level": activity_level}
@@ -138,21 +138,21 @@ def update_dietary_preferences(
         add_memory(
             user_id,
             f"User's preferred meal categories are: {', '.join(preferred_categories)}.",
-            metadata={"field": "preferred_categories"},
+            metadata={"field": "preferred_categories", "value": preferred_categories},
         )
         stored.append("preferred_categories")
     if disliked_ingredients is not None:
         add_memory(
             user_id,
             f"User dislikes these ingredients: {', '.join(disliked_ingredients)}.",
-            metadata={"field": "disliked_ingredients"},
+            metadata={"field": "disliked_ingredients", "value": disliked_ingredients},
         )
         stored.append("disliked_ingredients")
     if allergies is not None:
         add_memory(
             user_id,
             f"User is allergic to: {', '.join(allergies)}.",
-            metadata={"field": "allergies"},
+            metadata={"field": "allergies", "value": allergies},
         )
         stored.append("allergies")
     logger.info("update_dietary_preferences user=%s stored=%s", user_id, stored)
@@ -183,28 +183,28 @@ def update_meal_constraints(
         add_memory(
             user_id,
             f"User's maximum cost per serving is ${max_cost_per_serving:.2f}.",
-            metadata={"field": "max_cost_per_serving"},
+            metadata={"field": "max_cost_per_serving", "value": max_cost_per_serving},
         )
         stored.append(f"max_cost_per_serving={max_cost_per_serving}")
     if max_total_time is not None:
         add_memory(
             user_id,
             f"User wants meals that take no more than {max_total_time} minutes.",
-            metadata={"field": "max_total_time"},
+            metadata={"field": "max_total_time", "value": max_total_time},
         )
         stored.append(f"max_total_time={max_total_time}")
     if max_ingredient_count is not None:
         add_memory(
             user_id,
             f"User prefers recipes with at most {max_ingredient_count} ingredients.",
-            metadata={"field": "max_ingredient_count"},
+            metadata={"field": "max_ingredient_count", "value": max_ingredient_count},
         )
         stored.append(f"max_ingredient_count={max_ingredient_count}")
     if meals_per_day is not None:
         add_memory(
             user_id,
             f"User eats {meals_per_day} meals per day.",
-            metadata={"field": "meals_per_day"},
+            metadata={"field": "meals_per_day", "value": meals_per_day},
         )
         stored.append(f"meals_per_day={meals_per_day}")
     logger.info("update_meal_constraints user=%s stored=%s", user_id, stored)

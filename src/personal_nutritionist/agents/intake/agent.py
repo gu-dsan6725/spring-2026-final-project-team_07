@@ -49,8 +49,8 @@ Fields you need for a complete profile:
 
 def create_intake_agent() -> Agent:
     model = AnthropicModel(
-        model_id=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
-        api_key=os.getenv("ANTHROPIC_API_KEY"),
+        model_id=os.getenv("INTAKE_MODEL", "claude-sonnet-4-6"),
+        max_tokens=4096,
     )
     return Agent(
         model=model,

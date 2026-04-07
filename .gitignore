@@ -173,4 +173,8 @@ cython_debug/
 # Project documentation
 .project-docs/
 
+# Allow smoke test logs to be committed so partners can review outputs
+!test-output/
+!test-output/*.log
+
 
