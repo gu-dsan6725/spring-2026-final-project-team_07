@@ -1,6 +1,9 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
+MealSlot = Literal["breakfast", "lunch", "dinner", "snack"]
+
+
 
 class Recipe(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -30,6 +33,9 @@ class Recipe(BaseModel):
     cluster: int
     category: str
 
+    ingredients: list[str] = Field(default_factory=list)
+    meal_slots: list[MealSlot] = Field(default_factory=list)
+
 class RecipeSearchFilters(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -42,6 +48,7 @@ class RecipeSearchFilters(BaseModel):
     max_ingredient_count: Optional[int] = Field(default=None, ge=0)
     category: Optional[str] = None
     title_contains: Optional[str] = None
+    meal_slot: Optional[MealSlot] = None
     limit: int = Field(default=20, ge=1, le=100)
 
 class UserProfile(BaseModel):
@@ -76,3 +83,60 @@ class UserProfile(BaseModel):
     allergies: list[str] = Field(default_factory=list)
 
     meals_per_day: int = Field(default=3, ge=1, le=6)
+
+
+class AuditIssue(BaseModel):
+    check: str
+    passed: bool
+    message: str
+
+
+class AuditResult(BaseModel):
+    passed: bool
+    issues: list[AuditIssue]
+
+    @classmethod
+    def from_issues(cls, issues: list[AuditIssue]) -> "AuditResult":
+        return cls(passed=all(i.passed for i in issues), issues=issues)
+
+
+class WeekPlanAuditResult(BaseModel):
+    passed: bool
+    day_results: list[AuditResult]
+    issues: list[AuditIssue]
+
+    @classmethod
+    def from_parts(
+        cls, day_results: list[AuditResult], week_issues: list[AuditIssue]
+    ) -> "WeekPlanAuditResult":
+        all_passed = all(d.passed for d in day_results) and all(
+            i.passed for i in week_issues
+        )
+        return cls(passed=all_passed, day_results=day_results, issues=week_issues)
+
+
+class DayPlan(BaseModel):
+    breakfast: Recipe
+    lunch: Recipe
+    dinner: Recipe
+    snack: Optional[Recipe] = None
+
+    @property
+    def total_calories(self) -> float:
+        snack_cal = self.snack.calories if self.snack else 0.0
+        return self.breakfast.calories + self.lunch.calories + self.dinner.calories + snack_cal
+
+    @property
+    def total_protein(self) -> float:
+        snack_pro = self.snack.protein if self.snack else 0.0
+        return self.breakfast.protein + self.lunch.protein + self.dinner.protein + snack_pro
+
+    @property
+    def total_cost(self) -> float:
+        snack_cost = self.snack.cost_per_serving if self.snack else 0.0
+        return (
+            self.breakfast.cost_per_serving
+            + self.lunch.cost_per_serving
+            + self.dinner.cost_per_serving
+            + snack_cost
+        )
