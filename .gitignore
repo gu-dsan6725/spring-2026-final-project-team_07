@@ -169,3 +169,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Project documentation
+.project-docs/
+
+# Allow smoke test logs to be committed so partners can review outputs
+!test-output/
+!test-output/*.log
+
+
