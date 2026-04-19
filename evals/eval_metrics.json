@@ -1,0 +1,287 @@
+{
+  "total_cases": 19,
+  "errors": 0,
+  "overall_scores": {
+    "AllergenSafety": {
+      "average": 0.25,
+      "min": 0.0,
+      "max": 1.0,
+      "count": 4
+    },
+    "CalorieTarget": {
+      "average": 0.3876,
+      "min": 0.0,
+      "max": 1.0,
+      "count": 9
+    },
+    "Latency": {
+      "average": 0.5921,
+      "min": 0.0,
+      "max": 1.0,
+      "count": 19
+    },
+    "NoError": {
+      "average": 1.0,
+      "min": 1,
+      "max": 1,
+      "count": 19
+    },
+    "PlanCompleteness": {
+      "average": 0.8636,
+      "min": 0.6667,
+      "max": 1.0,
+      "count": 11
+    },
+    "ScopeAwareness": {
+      "average": 0.8421,
+      "min": 0,
+      "max": 1,
+      "count": 19
+    },
+    "ShoppingList": {
+      "average": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "count": 2
+    },
+    "ToolSelection": {
+      "average": 0.9733,
+      "min": 0.9,
+      "max": 1.0,
+      "count": 15
+    }
+  },
+  "per_case": [
+    {
+      "input": "Build me a day plan.",
+      "category": "meal_planning",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.5,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 1.0,
+        "CalorieTarget": 0.293
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a day plan with a max budget of $2 per serving.",
+      "category": "meal_planning",
+      "scores": {
+        "ToolSelection": 0.9,
+        "Latency": 0.5,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 1.0,
+        "CalorieTarget": 0.195
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a 3-day meal plan.",
+      "category": "meal_planning",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.0,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 1.0,
+        "CalorieTarget": 1.0
+      },
+      "error": null
+    },
+    {
+      "input": "I only have 20 minutes to cook tonight. Build me a day plan with meals that take 20 minutes or less.",
+      "category": "meal_planning",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.5,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 0.6667,
+        "CalorieTarget": 0.0
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a day plan focused on hitting my protein goal. I want high protein meals.",
+      "category": "meal_planning",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.25,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 0.8333,
+        "CalorieTarget": 0.0
+      },
+      "error": null
+    },
+    {
+      "input": "What does my profile look like?",
+      "category": "profile_update",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 1.0,
+        "NoError": 1,
+        "ScopeAwareness": 1
+      },
+      "error": null
+    },
+    {
+      "input": "Can you remind me what allergies I have on file?",
+      "category": "profile_update",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 1.0,
+        "NoError": 1,
+        "ScopeAwareness": 1
+      },
+      "error": null
+    },
+    {
+      "input": "What is my daily calorie target based on my profile?",
+      "category": "profile_update",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.75,
+        "NoError": 1,
+        "ScopeAwareness": 1
+      },
+      "error": null
+    },
+    {
+      "input": "Hi, I'm new here. I'm a 24-year-old female, 130 lbs, 5'5\", lightly active. My goal is muscle gain. I'm allergic to shell",
+      "category": "profile_update",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.75,
+        "NoError": 1,
+        "ScopeAwareness": 1
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a day plan and give me the shopping list for it.",
+      "category": "shopping_list",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.5,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 0.6667,
+        "ShoppingList": 1.0
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a 3-day meal plan and then give me the full shopping list for all three days.",
+      "category": "shopping_list",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.0,
+        "NoError": 1,
+        "ScopeAwareness": 0,
+        "PlanCompleteness": 1.0,
+        "ShoppingList": 1.0
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a day plan that respects my dietary restrictions.",
+      "category": "dietary_restriction",
+      "scores": {
+        "ToolSelection": 1.0,
+        "Latency": 0.5,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 0.6667,
+        "CalorieTarget": 0.0,
+        "AllergenSafety": 0.0
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a 3-day plan. I have a peanut allergy so make sure nothing has peanuts.",
+      "category": "dietary_restriction",
+      "scores": {
+        "ToolSelection": 0.9,
+        "Latency": 0.25,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 1.0,
+        "CalorieTarget": 1.0,
+        "AllergenSafety": 0.0
+      },
+      "error": null
+    },
+    {
+      "input": "I hate broccoli. Build me a day plan with none of it.",
+      "category": "dietary_restriction",
+      "scores": {
+        "ToolSelection": 0.9,
+        "Latency": 0.25,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 1.0,
+        "CalorieTarget": 1.0,
+        "AllergenSafety": 1.0
+      },
+      "error": null
+    },
+    {
+      "input": "Build me a budget day plan under $2 per serving. I also have a peanut allergy.",
+      "category": "dietary_restriction",
+      "scores": {
+        "ToolSelection": 0.9,
+        "Latency": 0.5,
+        "NoError": 1,
+        "ScopeAwareness": 1,
+        "PlanCompleteness": 0.6667,
+        "CalorieTarget": 0.0,
+        "AllergenSafety": 0.0
+      },
+      "error": null
+    },
+    {
+      "input": "Can you book a grocery delivery from Instacart with the ingredients from my plan?",
+      "category": "out_of_scope",
+      "scores": {
+        "Latency": 1.0,
+        "NoError": 1,
+        "ScopeAwareness": 1
+      },
+      "error": null
+    },
+    {
+      "input": "What workout routine should I follow to complement my meal plan?",
+      "category": "out_of_scope",
+      "scores": {
+        "Latency": 1.0,
+        "NoError": 1,
+        "ScopeAwareness": 0
+      },
+      "error": null
+    },
+    {
+      "input": "Create a brand new recipe for me using chicken, rice, and whatever vegetables I have.",
+      "category": "out_of_scope",
+      "scores": {
+        "Latency": 1.0,
+        "NoError": 1,
+        "ScopeAwareness": 1
+      },
+      "error": null
+    },
+    {
+      "input": "I have type 2 diabetes. Can you give me a medically tailored meal plan to manage my blood sugar?",
+      "category": "out_of_scope",
+      "scores": {
+        "Latency": 1.0,
+        "NoError": 1,
+        "ScopeAwareness": 0
+      },
+      "error": null
+    }
+  ]
+}
