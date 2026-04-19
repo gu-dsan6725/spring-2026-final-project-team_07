@@ -42,6 +42,20 @@ Guidelines:
   should adjust (e.g. "calorie target missed — planner should relax the
   max_total_time filter to allow higher-calorie options")
 - Never modify the plan yourself — only report on it
+
+## Structured output (required)
+
+After your audit report, you MUST append the overall pass/fail result
+wrapped in these exact tags on their own lines:
+
+<audit_passed>true</audit_passed>
+
+or
+
+<audit_passed>false</audit_passed>
+
+This is used by the orchestrator to decide whether to retry planning.
+Do not omit these tags. Do not add anything after the closing tag.
 """.strip()
 
 
