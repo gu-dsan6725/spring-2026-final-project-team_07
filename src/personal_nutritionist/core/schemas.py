@@ -34,8 +34,10 @@ class Recipe(BaseModel):
     category: str
 
     ingredients: list[str] = Field(default_factory=list)
+    ingredient_details: list[dict] = Field(default_factory=list)
     steps: list[str] = Field(default_factory=list)
     meal_slots: list[MealSlot] = Field(default_factory=list)
+    serving_multiplier: float = Field(default=1.0, gt=0)
 
 class RecipeSearchFilters(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -50,6 +52,7 @@ class RecipeSearchFilters(BaseModel):
     category: Optional[str] = None
     title_contains: Optional[str] = None
     meal_slot: Optional[MealSlot] = None
+    exclude_ingredients: list[str] = Field(default_factory=list)
     limit: int = Field(default=20, ge=1, le=100)
 
 class UserProfile(BaseModel):
@@ -85,35 +88,6 @@ class UserProfile(BaseModel):
 
     meals_per_day: int = Field(default=3, ge=1, le=6)
 
-
-class AuditIssue(BaseModel):
-    check: str
-    passed: bool
-    message: str
-
-
-class AuditResult(BaseModel):
-    passed: bool
-    issues: list[AuditIssue]
-
-    @classmethod
-    def from_issues(cls, issues: list[AuditIssue]) -> "AuditResult":
-        return cls(passed=all(i.passed for i in issues), issues=issues)
-
-
-class WeekPlanAuditResult(BaseModel):
-    passed: bool
-    day_results: list[AuditResult]
-    issues: list[AuditIssue]
-
-    @classmethod
-    def from_parts(
-        cls, day_results: list[AuditResult], week_issues: list[AuditIssue]
-    ) -> "WeekPlanAuditResult":
-        all_passed = all(d.passed for d in day_results) and all(
-            i.passed for i in week_issues
-        )
-        return cls(passed=all_passed, day_results=day_results, issues=week_issues)
 
 
 class DayPlan(BaseModel):

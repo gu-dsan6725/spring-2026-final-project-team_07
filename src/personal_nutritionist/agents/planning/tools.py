@@ -120,14 +120,15 @@ def build_week_plan_tool(
         goal=goal,
     )
     logger.info("build_week_plan n_days=%s include_snack=%s include_side=%s", n_days, include_snack, include_side)
+    _SLIM = {"steps", "ingredient_details"}
     return [
         {
-            "breakfast": p.breakfast.model_dump(),
-            "lunch": p.lunch.model_dump(),
-            "lunch_side": p.lunch_side.model_dump() if p.lunch_side else None,
-            "dinner": p.dinner.model_dump(),
-            "dinner_side": p.dinner_side.model_dump() if p.dinner_side else None,
-            "snack": p.snack.model_dump() if p.snack else None,
+            "breakfast": p.breakfast.model_dump(exclude=_SLIM),
+            "lunch": p.lunch.model_dump(exclude=_SLIM),
+            "lunch_side": p.lunch_side.model_dump(exclude=_SLIM) if p.lunch_side else None,
+            "dinner": p.dinner.model_dump(exclude=_SLIM),
+            "dinner_side": p.dinner_side.model_dump(exclude=_SLIM) if p.dinner_side else None,
+            "snack": p.snack.model_dump(exclude=_SLIM) if p.snack else None,
             "totals": {
                 "calories": p.total_calories,
                 "protein": p.total_protein,
@@ -177,13 +178,14 @@ def build_day_plan_tool(
         plan.total_protein,
         plan.total_cost,
     )
+    _SLIM = {"steps", "ingredient_details"}
     return {
-        "breakfast": plan.breakfast.model_dump(),
-        "lunch": plan.lunch.model_dump(),
-        "lunch_side": plan.lunch_side.model_dump() if plan.lunch_side else None,
-        "dinner": plan.dinner.model_dump(),
-        "dinner_side": plan.dinner_side.model_dump() if plan.dinner_side else None,
-        "snack": plan.snack.model_dump() if plan.snack else None,
+        "breakfast": plan.breakfast.model_dump(exclude=_SLIM),
+        "lunch": plan.lunch.model_dump(exclude=_SLIM),
+        "lunch_side": plan.lunch_side.model_dump(exclude=_SLIM) if plan.lunch_side else None,
+        "dinner": plan.dinner.model_dump(exclude=_SLIM),
+        "dinner_side": plan.dinner_side.model_dump(exclude=_SLIM) if plan.dinner_side else None,
+        "snack": plan.snack.model_dump(exclude=_SLIM) if plan.snack else None,
         "totals": {
             "calories": plan.total_calories,
             "protein": plan.total_protein,

@@ -144,21 +144,40 @@ def fetch_bb_category(slug: str) -> str:
         return _FALLBACK_CATEGORY
 
 
-def extract_steps(url: str) -> list[str] | None:
-    """Fetch a recipe page and return its steps, or None."""
+def _parse_amount(amount_str: str | None) -> float | None:
+    if not amount_str:
+        return None
+    amount_str = amount_str.strip()
+    try:
+        return float(amount_str)
+    except ValueError:
+        pass
+    try:
+        from fractions import Fraction
+        return round(float(Fraction(amount_str)), 4)
+    except ValueError:
+        return None
+
+
+def extract_recipe_data(url: str) -> dict:
+    """
+    Fetch a recipe page and return steps and structured ingredients.
+    Structured ingredients are [{amount, unit, name}] dicts.
+    Returns empty lists on failure.
+    """
     r = _get_with_retry(url)
     if r is None:
-        return None
+        return {"steps": [], "ingredient_details": []}
     try:
         r.raise_for_status()
     except Exception as e:
         log.warning("HTTP error for %s: %s", url, e)
-        return None
+        return {"steps": [], "ingredient_details": []}
 
     soup = BeautifulSoup(r.content, "html.parser")
     container = soup.find(class_="wprm-recipe-container")
     if container is None:
-        return None
+        return {"steps": [], "ingredient_details": []}
 
     steps = []
     for ins in container.find_all("li", class_="wprm-recipe-instruction"):
@@ -166,7 +185,22 @@ def extract_steps(url: str) -> list[str] | None:
         text = step_el.get_text(" ", strip=True)
         if text:
             steps.append(text)
-    return steps if steps else None
+
+    ingredient_details = []
+    for ing in container.find_all("li", class_="wprm-recipe-ingredient"):
+        amount_el = ing.find(class_="wprm-recipe-ingredient-amount")
+        unit_el   = ing.find(class_="wprm-recipe-ingredient-unit")
+        name_el   = ing.find(class_="wprm-recipe-ingredient-name")
+        name = name_el.get_text(strip=True) if name_el else None
+        if not name:
+            continue
+        ingredient_details.append({
+            "amount": _parse_amount(amount_el.get_text(strip=True) if amount_el else None),
+            "unit":   unit_el.get_text(strip=True) if unit_el else None,
+            "name":   name,
+        })
+
+    return {"steps": steps, "ingredient_details": ingredient_details}
 
 
 def main() -> None:
@@ -175,23 +209,24 @@ def main() -> None:
 
     sitemap = get_sitemap_urls()
 
-    steps_map: dict[str, list[str] | None] = {}
-    category_map: dict[str, str] = {}
-    miss_titles: list[str] = []
+    steps_map:      dict[str, list] = {}
+    ingredients_map: dict[str, list] = {}
+    category_map:   dict[str, str]  = {}
+    miss_titles:    list[str]        = []
 
     for title in tqdm(df["title"], desc="Scraping"):
         slug = title_to_slug(title)
-        url = sitemap.get(slug, f"https://www.budgetbytes.com/{slug}/")
+        url  = sitemap.get(slug, f"https://www.budgetbytes.com/{slug}/")
 
-        steps = extract_steps(url)
+        data     = extract_recipe_data(url)
         category = fetch_bb_category(slug)
 
-        if steps:
-            steps_map[title] = steps
-        else:
+        steps_map[title]       = data["steps"] or None
+        ingredients_map[title] = data["ingredient_details"]
+        category_map[title]    = category
+
+        if not data["steps"]:
             miss_titles.append(title)
-            steps_map[title] = None
-        category_map[title] = category
 
         time.sleep(SLEEP_SEC)
 
@@ -200,8 +235,9 @@ def main() -> None:
     if miss_titles:
         log.info("Missed: %s", miss_titles[:10])
 
-    df["steps"] = df["title"].map(steps_map)
-    df["bb_category"] = df["title"].map(category_map)
+    df["steps"]              = df["title"].map(steps_map)
+    df["ingredient_details"] = df["title"].map(ingredients_map)
+    df["bb_category"]        = df["title"].map(category_map)
     df.to_csv(OUT_CSV, index=False)
     log.info("Saved to %s", OUT_CSV)
     log.info("Steps coverage: %.1f%%", df["steps"].notna().mean() * 100)

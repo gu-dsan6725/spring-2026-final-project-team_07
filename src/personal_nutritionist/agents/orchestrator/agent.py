@@ -7,6 +7,7 @@ from strands.models.anthropic import AnthropicModel
 from personal_nutritionist.agents.orchestrator.tools import (
     audit_meal_plan,
     build_meal_plan,
+    generate_shopping_list,
     update_user_profile,
 )
 
@@ -35,12 +36,15 @@ On every message, detect the user's intent:
 
 1. Call build_meal_plan with the appropriate plan_type and n_days.
 2. Call audit_meal_plan with user_id and the result from step 1.
+   audit_meal_plan returns {passed: bool, issues: [str]}. It checks only hard
+   constraints: required slots present, no duplicate meals, dietary restriction
+   violations. Calorie/protein targets are handled by the planner — do not retry
+   for nutritional shortfalls.
 3. If audit passes → present the plan to the user.
-4. If audit fails → retry up to 2 times with adjustments:
-   - First retry: add include_snack=True to increase calories and protein
-   - Second retry: add override_filters={{"max_total_time": 60}} to widen recipe selection
-   - After 2 retries: present the best plan with a note on what fell short
-     and suggest the user relax their constraints via the intake agent.
+4. If audit fails → retry up to 2 times:
+   - First retry: add override_filters={{"max_total_time": 90}} to widen selection
+   - Second retry: add override_filters={{"max_total_time": 90, "max_ingredient_count": 20}}
+   - After 2 retries: present the best plan and note the issues from audit_meal_plan["issues"]
 
 ## Presenting a Plan
 
@@ -50,6 +54,20 @@ Always include:
 - One sentence on how it aligns with their goal
 
 Keep it clean and friendly — this is a health app, not a spreadsheet.
+
+## Recipe Details and Shopping Lists
+
+The plan data returned by build_meal_plan includes full recipe objects. Each
+recipe has an `ingredients` list and a `steps` list. Use these to answer
+follow-up questions directly from context — no extra tool calls needed:
+
+- "Show me the steps for [recipe]" → find the recipe in the plan and list its steps
+- "What ingredients does [recipe] need?" → find the recipe and list its ingredients
+
+For shopping list requests ("what do I need to buy?", "give me a shopping list",
+"list all ingredients for the plan"), call generate_shopping_list with the
+plan_result from the most recent build_meal_plan call. Present the result as a
+clean grouped list, not a wall of text.
 
 ## Edge Cases
 
@@ -69,5 +87,5 @@ def create_orchestrator(user_id: str) -> Agent:
     return Agent(
         model=model,
         system_prompt=_SYSTEM_PROMPT.format(user_id=user_id),
-        tools=[update_user_profile, build_meal_plan, audit_meal_plan],
+        tools=[update_user_profile, build_meal_plan, audit_meal_plan, generate_shopping_list],
     )

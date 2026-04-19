@@ -1,6 +1,7 @@
 import ast
+import re
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 
@@ -56,6 +57,42 @@ def assign_meal_slots(row: pd.Series) -> list[MealSlot]:
     return slots if slots else ["lunch", "dinner"]
 
 
+_PREP_WORDS = {
+    "chopped", "diced", "pressed", "minced", "sliced", "shredded", "peeled",
+    "trimmed", "seeded", "softened", "melted", "divided", "uncooked", "cooked",
+    "grated", "torn", "crumbled", "halved", "quartered", "julienned", "thinly",
+    "roughly", "finely", "lightly", "beaten", "sifted", "rinsed", "drained",
+    "freshly", "cracked", "ground", "packed",
+}
+_SIZE_WORDS = {"small", "medium", "large", "baby", "jumbo", "mini"}
+_QUALITY_WORDS = {
+    "fresh", "frozen", "canned", "dried", "unsalted", "salted", "low-sodium",
+    "reduced-sodium", "whole", "lean", "boneless", "skinless", "raw",
+}
+_TRAILING_PHRASES = [
+    "for garnish", "for serving", "to taste", "or to taste",
+    "room temperature", "divided", "optional", "as needed",
+]
+
+
+def clean_ingredient_name(name: str) -> str:
+    """
+    Normalise an ingredient name for deduplication and allergy matching.
+    Strips prep instructions, size/quality qualifiers, and parentheticals.
+    """
+    name = name.lower().strip()
+    name = re.sub(r"\(.*?\)", "", name)
+    name = re.sub(r"\*+", "", name)
+    name = name.replace(",", " ")
+    for phrase in _TRAILING_PHRASES:
+        name = name.replace(phrase, "")
+    words = [
+        w for w in name.split()
+        if w not in _PREP_WORDS and w not in _SIZE_WORDS and w not in _QUALITY_WORDS
+    ]
+    return re.sub(r"\s+", " ", " ".join(words)).strip()
+
+
 RECIPE_COLUMN_MAP = {
     "title": "title",
     "total_cost_usd": "total_cost",
@@ -76,6 +113,7 @@ RECIPE_COLUMN_MAP = {
     "cluster_label": "cluster",
     "bb_category": "category",
     "ingredients": "ingredients",
+    "ingredient_details": "ingredient_details",
     "steps": "steps",
 }
 
@@ -94,6 +132,8 @@ def load_recipes(csv_path: str | Path) -> pd.DataFrame:
         df["bb_category"] = df["recipe_category"]
     if "steps" not in df.columns:
         df["steps"] = None
+    if "ingredient_details" not in df.columns:
+        df["ingredient_details"] = None
 
     missing = [col for col in RECIPE_COLUMN_MAP if col not in df.columns]
     if missing:
@@ -118,12 +158,22 @@ def load_recipes(csv_path: str | Path) -> pd.DataFrame:
         except Exception:
             return []
 
-    df["ingredients"] = df["ingredients"].apply(_parse_list)
+    df["ingredient_details"] = df["ingredient_details"].apply(
+        lambda v: _parse_list(v) if pd.notna(v) else []
+    )
 
-    if "steps" in df.columns:
-        df["steps"] = df["steps"].apply(lambda v: _parse_list(v) if pd.notna(v) else [])
-    else:
-        df["steps"] = [[] for _ in range(len(df))]
+    # Derive ingredients (name-only strings for filtering) from structured data
+    # when available; fall back to the raw ingredients column otherwise.
+    def _derive_ingredients(row: pd.Series) -> list[str]:
+        details = row.get("ingredient_details") or []
+        if details:
+            return [clean_ingredient_name(d["name"]) for d in details if d.get("name")]
+        raw = row.get("ingredients")
+        return _parse_list(raw) if pd.notna(raw) else []
+
+    df["ingredients"] = df.apply(_derive_ingredients, axis=1)
+
+    df["steps"] = df["steps"].apply(lambda v: _parse_list(v) if pd.notna(v) else [])
 
     return df
 
@@ -175,6 +225,22 @@ def search_recipes(
             results["title"].str.contains(filters.title_contains, case=False, na=False)
         ]
 
+    if filters.exclude_ingredients:
+        # Normalise each exclusion term to its singular root (strips trailing 's')
+        # so "peanuts" matches "peanut butter", "eggs" matches "egg", etc.
+        excluded = []
+        for e in filters.exclude_ingredients:
+            term = e.lower().strip()
+            excluded.append(term)
+            if term.endswith("s"):
+                excluded.append(term[:-1])
+
+        def _contains_excluded(ing_list: list) -> bool:
+            combined = " ".join(ing_list).lower()
+            return any(excl in combined for excl in excluded)
+
+        results = results[~results["ingredients"].apply(_contains_excluded)]
+
     # Sort by a simple practical heuristic:
     # high protein, good ratings, cheaper cost
     results = results.sort_values(
@@ -200,13 +266,19 @@ def search_meals(
 
 
 # Fraction of daily calories each slot should contribute
-_SLOT_CAL_FRACTIONS: dict[str, float] = {
+# With sides: breakfast(0.25) + lunch(0.28) + lunch_side(0.07) + dinner(0.28) + dinner_side(0.07) = 0.95
+# Without sides: breakfast(0.30) + lunch(0.35) + dinner(0.35) = 1.00
+_SLOT_CAL_FRACTIONS_WITH_SIDES: dict[str, float] = {
     "breakfast":   0.25,
     "lunch":       0.28,
     "lunch_side":  0.07,
     "dinner":      0.28,
     "dinner_side": 0.07,
-    # snack gets whatever the day is short by
+}
+_SLOT_CAL_FRACTIONS_NO_SIDES: dict[str, float] = {
+    "breakfast":   0.30,
+    "lunch":       0.35,
+    "dinner":      0.35,
 }
 
 # Goal-based scoring weights: (calorie_closeness, protein, rating)
@@ -258,6 +330,23 @@ def _score_recipe(
 
 
 _WEEK_REPEAT_PENALTY = 0.35
+
+_SERVING_SCALE = 1.5  # single increment: 1 serving → 1.5 servings
+_CALORIE_FLOOR = 0.95  # stop scaling once we hit 95% of target
+# Scale priority: biggest calorie contributors first so we use the fewest increments
+_SCALE_PRIORITY = ["lunch", "dinner", "breakfast", "lunch_side", "dinner_side"]
+
+
+def _scale_recipe(recipe: Recipe, factor: float) -> Recipe:
+    """Return a copy with macros and cost scaled by factor (eating factor servings)."""
+    return recipe.model_copy(update={
+        "calories":          recipe.calories          * factor,
+        "protein":           recipe.protein           * factor,
+        "fat":               recipe.fat               * factor,
+        "carbs":             recipe.carbs             * factor,
+        "cost_per_serving":  recipe.cost_per_serving  * factor,
+        "serving_multiplier": recipe.serving_multiplier * factor,
+    })
 
 
 def _best_candidate(
@@ -320,9 +409,10 @@ def build_day_plan(
 
     slot_cal_targets: dict[str, float] = {}
     if calorie_target:
+        fractions = _SLOT_CAL_FRACTIONS_WITH_SIDES if include_side else _SLOT_CAL_FRACTIONS_NO_SIDES
         slot_cal_targets = {
             slot: calorie_target * frac
-            for slot, frac in _SLOT_CAL_FRACTIONS.items()
+            for slot, frac in fractions.items()
         }
 
     def _pick(slot: MealSlot, slot_cal_target: float | None) -> Recipe:
@@ -374,6 +464,30 @@ def build_day_plan(
     lunch_side  = _pick_optional("side", slot_cal_targets.get("lunch_side"))  if include_side else None
     dinner_side = _pick_optional("side", slot_cal_targets.get("dinner_side")) if include_side else None
 
+    # Per-meal serving adjustment: scale individual meals by +0.5 in priority
+    # order until the plan reaches 95% of the calorie target.
+    if calorie_target:
+        slot_refs: dict[str, Optional[Recipe]] = {
+            "breakfast": breakfast, "lunch": lunch, "lunch_side": lunch_side,
+            "dinner": dinner, "dinner_side": dinner_side,
+        }
+        cost_cap = filters.max_cost_per_serving
+        for slot_name in _SCALE_PRIORITY:
+            meal = slot_refs.get(slot_name)
+            if meal is None:
+                continue
+            current_cal = sum(m.calories for m in slot_refs.values() if m is not None)
+            if current_cal >= calorie_target * _CALORIE_FLOOR:
+                break
+            if cost_cap and meal.cost_per_serving * _SERVING_SCALE > cost_cap:
+                continue
+            slot_refs[slot_name] = _scale_recipe(meal, _SERVING_SCALE)
+        breakfast   = slot_refs["breakfast"]
+        lunch       = slot_refs["lunch"]
+        lunch_side  = slot_refs["lunch_side"]
+        dinner      = slot_refs["dinner"]
+        dinner_side = slot_refs["dinner_side"]
+
     snack = None
     if include_snack:
         if calorie_target and protein_target:
@@ -388,8 +502,8 @@ def build_day_plan(
                 + (dinner_side.protein if dinner_side else 0.0)
             )
             needs_snack = (
-                current_cal     < calorie_target * 0.85 or
-                current_protein < protein_target * 0.85
+                current_cal     < calorie_target * _CALORIE_FLOOR or
+                current_protein < protein_target * _CALORIE_FLOOR
             )
             if needs_snack:
                 cal_gap = max(0.0, calorie_target - current_cal)
