@@ -1,0 +1,136 @@
+[
+    {
+        "input": "Build me a day plan.",
+        "expected_output": "A day plan with breakfast, lunch, dinner, and sides showing calories, protein, and cost per meal with daily totals near 2,279 kcal.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "easy"
+    },
+    {
+        "input": "Build me a day plan with a max budget of $2 per serving.",
+        "expected_output": "A day plan where all meals are at or under $2 per serving, with calories and protein totals shown.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "medium"
+    },
+    {
+        "input": "Build me a 3-day meal plan.",
+        "expected_output": "A 3-day meal plan with different meals each day, showing daily calorie and protein totals near the target.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "hard"
+    },
+    {
+        "input": "I only have 20 minutes to cook tonight. Build me a day plan with meals that take 20 minutes or less.",
+        "expected_output": "A day plan where every meal has a total time of 20 minutes or less.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "medium"
+    },
+    {
+        "input": "Build me a day plan focused on hitting my protein goal. I want high protein meals.",
+        "expected_output": "A day plan emphasizing high-protein meals with protein totals clearly shown.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "medium"
+    },
+    {
+        "input": "What does my profile look like?",
+        "expected_output": "A summary of the user profile including goal (fat loss), weight (180 lbs), height (70 in), age (28), sex (male), allergies (peanuts), and max cost per serving ($3.00).",
+        "expected_tools": ["update_user_profile"],
+        "category": "profile_update",
+        "difficulty": "easy"
+    },
+    {
+        "input": "Can you remind me what allergies I have on file?",
+        "expected_output": "The agent should retrieve and confirm the user's allergies, which include peanuts.",
+        "expected_tools": ["update_user_profile"],
+        "category": "profile_update",
+        "difficulty": "easy"
+    },
+    {
+        "input": "What is my daily calorie target based on my profile?",
+        "expected_output": "The agent should load the profile and report the estimated daily calorie target of approximately 2,279 kcal for a 28-year-old male, 180 lbs, 5'10\", moderate activity, fat loss goal.",
+        "expected_tools": ["update_user_profile"],
+        "category": "profile_update",
+        "difficulty": "medium"
+    },
+    {
+        "input": "Hi, I'm new here. I'm a 24-year-old female, 130 lbs, 5'5\", lightly active. My goal is muscle gain. I'm allergic to shellfish and I don't like mushrooms. My budget is $5 per serving and I have about 45 minutes to cook.",
+        "expected_output": "The agent should collect and confirm the user's profile including goal (muscle gain), body stats, activity level, shellfish allergy, mushroom dislike, budget, and time constraint.",
+        "expected_tools": ["update_user_profile"],
+        "category": "profile_update",
+        "difficulty": "medium",
+        "user_id": "eval_new_user"
+    },
+    {
+        "input": "Build me a day plan and give me the shopping list for it.",
+        "expected_output": "A day plan followed by a shopping list with ingredient names and quantities aggregated across all meals.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan", "generate_shopping_list"],
+        "category": "shopping_list",
+        "difficulty": "medium"
+    },
+    {
+        "input": "Build me a 3-day meal plan and then give me the full shopping list for all three days.",
+        "expected_output": "A 3-day meal plan followed by a consolidated shopping list with quantities summed across all days.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan", "generate_shopping_list"],
+        "category": "shopping_list",
+        "difficulty": "hard"
+    },
+    {
+        "input": "Build me a day plan that respects my dietary restrictions.",
+        "expected_output": "A day plan that contains no peanuts or peanut butter, and no broccoli.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "dietary_restriction",
+        "difficulty": "medium"
+    },
+    {
+        "input": "Build me a 3-day plan. I have a peanut allergy so make sure nothing has peanuts.",
+        "expected_output": "A 3-day meal plan with no peanuts or peanut butter in any meal across all three days.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "dietary_restriction",
+        "difficulty": "hard"
+    },
+    {
+        "input": "I hate broccoli. Build me a day plan with none of it.",
+        "expected_output": "A day plan where no meal contains broccoli as an ingredient.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "dietary_restriction",
+        "difficulty": "medium"
+    },
+    {
+        "input": "Build me a budget day plan under $2 per serving. I also have a peanut allergy.",
+        "expected_output": "A day plan under $2 per serving with no peanut-containing meals.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "dietary_restriction",
+        "difficulty": "hard"
+    },
+    {
+        "input": "Can you book a grocery delivery from Instacart with the ingredients from my plan?",
+        "expected_output": "The agent should explain it cannot place grocery orders or interact with Instacart, and suggest using the shopping list tool instead.",
+        "expected_tools": [],
+        "category": "out_of_scope",
+        "difficulty": "easy"
+    },
+    {
+        "input": "What workout routine should I follow to complement my meal plan?",
+        "expected_output": "The agent should explain it is focused on nutrition and meal planning, not fitness or workout programming.",
+        "expected_tools": [],
+        "category": "out_of_scope",
+        "difficulty": "easy"
+    },
+    {
+        "input": "Create a brand new recipe for me using chicken, rice, and whatever vegetables I have.",
+        "expected_output": "The agent should explain it works with existing recipes from its database and cannot create new recipes from scratch.",
+        "expected_tools": [],
+        "category": "out_of_scope",
+        "difficulty": "medium"
+    },
+    {
+        "input": "I have type 2 diabetes. Can you give me a medically tailored meal plan to manage my blood sugar?",
+        "expected_output": "The agent should acknowledge the medical context, avoid giving clinical dietary prescriptions, and suggest consulting a registered dietitian for medically tailored plans.",
+        "expected_tools": [],
+        "category": "out_of_scope",
+        "difficulty": "hard"
+    }
+]

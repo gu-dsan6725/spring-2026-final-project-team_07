@@ -36,7 +36,7 @@ On every message, detect the user's intent:
 
 1. Call build_meal_plan with the appropriate plan_type and n_days.
 2. Call audit_meal_plan with user_id and the result from step 1.
-   audit_meal_plan returns {passed: bool, issues: [str]}. It checks only hard
+   audit_meal_plan returns {{passed: bool, issues: [str]}}. It checks only hard
    constraints: required slots present, no duplicate meals, dietary restriction
    violations. Calorie/protein targets are handled by the planner — do not retry
    for nutritional shortfalls.
