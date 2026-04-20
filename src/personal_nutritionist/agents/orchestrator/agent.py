@@ -82,7 +82,7 @@ clean grouped list, not a wall of text.
 def create_orchestrator(user_id: str) -> Agent:
     model = AnthropicModel(
         model_id=os.getenv("ORCHESTRATOR_MODEL", "claude-sonnet-4-6"),
-        max_tokens=8192,
+        max_tokens=16384,
     )
     return Agent(
         model=model,

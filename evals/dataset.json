@@ -4,35 +4,40 @@
         "expected_output": "A day plan with breakfast, lunch, dinner, and sides showing calories, protein, and cost per meal with daily totals near 2,279 kcal.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "meal_planning",
-        "difficulty": "easy"
+        "difficulty": "easy",
+        "calorie_target": 2279
     },
     {
         "input": "Build me a day plan with a max budget of $2 per serving.",
         "expected_output": "A day plan where all meals are at or under $2 per serving, with calories and protein totals shown.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "meal_planning",
-        "difficulty": "medium"
+        "difficulty": "medium",
+        "calorie_target": 2279
     },
     {
         "input": "Build me a 3-day meal plan.",
         "expected_output": "A 3-day meal plan with different meals each day, showing daily calorie and protein totals near the target.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "meal_planning",
-        "difficulty": "hard"
+        "difficulty": "hard",
+        "calorie_target": 2279
     },
     {
         "input": "I only have 20 minutes to cook tonight. Build me a day plan with meals that take 20 minutes or less.",
         "expected_output": "A day plan where every meal has a total time of 20 minutes or less.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "meal_planning",
-        "difficulty": "medium"
+        "difficulty": "medium",
+        "calorie_target": 2279
     },
     {
         "input": "Build me a day plan focused on hitting my protein goal. I want high protein meals.",
         "expected_output": "A day plan emphasizing high-protein meals with protein totals clearly shown.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "meal_planning",
-        "difficulty": "medium"
+        "difficulty": "medium",
+        "calorie_target": 2279
     },
     {
         "input": "What does my profile look like?",
@@ -82,28 +87,36 @@
         "expected_output": "A day plan that contains no peanuts or peanut butter, and no broccoli.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "dietary_restriction",
-        "difficulty": "medium"
+        "difficulty": "medium",
+        "expected_allergens": ["peanut"],
+        "calorie_target": 2279
     },
     {
         "input": "Build me a 3-day plan. I have a peanut allergy so make sure nothing has peanuts.",
         "expected_output": "A 3-day meal plan with no peanuts or peanut butter in any meal across all three days.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "dietary_restriction",
-        "difficulty": "hard"
+        "difficulty": "hard",
+        "expected_allergens": ["peanut"],
+        "calorie_target": 2279
     },
     {
         "input": "I hate broccoli. Build me a day plan with none of it.",
         "expected_output": "A day plan where no meal contains broccoli as an ingredient.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "dietary_restriction",
-        "difficulty": "medium"
+        "difficulty": "medium",
+        "expected_allergens": [],
+        "calorie_target": 2279
     },
     {
         "input": "Build me a budget day plan under $2 per serving. I also have a peanut allergy.",
         "expected_output": "A day plan under $2 per serving with no peanut-containing meals.",
         "expected_tools": ["build_meal_plan", "audit_meal_plan"],
         "category": "dietary_restriction",
-        "difficulty": "hard"
+        "difficulty": "hard",
+        "expected_allergens": ["peanut"],
+        "calorie_target": 2279
     },
     {
         "input": "Can you book a grocery delivery from Instacart with the ingredients from my plan?",
@@ -132,5 +145,94 @@
         "expected_tools": [],
         "category": "out_of_scope",
         "difficulty": "hard"
+    },
+    {
+        "input": "Build me a day plan.",
+        "expected_output": "A day plan targeting approximately 2,093 kcal for a 24-year-old female with muscle gain goal, showing calories, protein, and cost per meal.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "easy",
+        "user_id": "eval_muscle_f",
+        "calorie_target": 2093
+    },
+    {
+        "input": "Build me a day plan.",
+        "expected_output": "A day plan targeting approximately 2,309 kcal for a 35-year-old male with fat loss goal, all meals under $1.50 per serving.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "medium",
+        "user_id": "eval_budget_m",
+        "calorie_target": 2309
+    },
+    {
+        "input": "Build me a day plan. I need everything ready in 15 minutes or less.",
+        "expected_output": "A day plan where every meal takes 15 minutes or less to prepare, targeting fat loss.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "medium",
+        "user_id": "eval_quick_f",
+        "calorie_target": 1612
+    },
+    {
+        "input": "Build me a high-calorie day plan. I train hard and need fuel for muscle building.",
+        "expected_output": "A day plan for a very active 22-year-old male with muscle gain goal, showing high calorie and protein totals.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "hard",
+        "user_id": "eval_athlete_m"
+    },
+    {
+        "input": "Build me a day plan.",
+        "expected_output": "A maintenance day plan targeting approximately 1,829 kcal for a 65-year-old sedentary male.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "medium",
+        "user_id": "eval_senior_m",
+        "calorie_target": 1829
+    },
+    {
+        "input": "Build me a day plan that avoids my allergens.",
+        "expected_output": "A day plan with no peanut-containing ingredients for a 28-year-old female with fat loss goal.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "dietary_restriction",
+        "difficulty": "medium",
+        "user_id": "eval_peanut_f",
+        "expected_allergens": ["peanut"],
+        "calorie_target": 1712
+    },
+    {
+        "input": "Build me a 3-day meal plan.",
+        "expected_output": "A 3-day plan for an active 25-year-old male with muscle gain goal, showing high protein and calorie totals each day.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "hard",
+        "user_id": "eval_3day_m"
+    },
+    {
+        "input": "Build me a 3-day meal plan under $1.75 per serving.",
+        "expected_output": "A 3-day plan where every meal is at or under $1.75 per serving, targeting fat loss for a 40-year-old female.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "meal_planning",
+        "difficulty": "hard",
+        "user_id": "eval_budget_3day_f",
+        "calorie_target": 1464
+    },
+    {
+        "input": "Build me a day plan. I have a peanut allergy and I hate broccoli.",
+        "expected_output": "A day plan with no peanuts or broccoli for a 26-year-old male with fat loss goal.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan"],
+        "category": "dietary_restriction",
+        "difficulty": "hard",
+        "user_id": "eval_multi_m",
+        "expected_allergens": ["peanut"],
+        "calorie_target": 2199
+    },
+    {
+        "input": "Build me a day plan and give me the shopping list.",
+        "expected_output": "A day plan for a 33-year-old male followed by a shopping list with ingredient names and quantities.",
+        "expected_tools": ["build_meal_plan", "audit_meal_plan", "generate_shopping_list"],
+        "category": "shopping_list",
+        "difficulty": "medium",
+        "user_id": "eval_shopping_m"
     }
 ]

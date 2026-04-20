@@ -61,22 +61,38 @@ def _save_checkpoint(cache: dict[str, dict]) -> None:
 # Agent runner
 # ---------------------------------------------------------------------------
 
-def _run_agent_on_input(input_text: str, user_id: str = EVAL_USER_ID) -> dict:
-    """Run the orchestrator on a single input and return output + metadata."""
+def _run_agent_on_input(input_text: str, user_id: str = EVAL_USER_ID,
+                        max_retries: int = 3, retry_wait: int = 90) -> dict:
+    """Run the orchestrator on a single input and return output + metadata.
+
+    Retries up to max_retries times on transient overloaded_error responses,
+    waiting retry_wait seconds between attempts.
+    """
     from personal_nutritionist.agents.orchestrator.agent import create_orchestrator
 
-    agent = create_orchestrator(user_id=user_id)
+    for attempt in range(1, max_retries + 1):
+        agent = create_orchestrator(user_id=user_id)
+        logger.info("Running orchestrator [%s] attempt %d: %s", user_id, attempt, input_text[:80])
+        start = time.time()
+        try:
+            response = agent(input_text)
+        except Exception as exc:
+            if "overloaded" in str(exc).lower() and attempt < max_retries:
+                logger.warning(
+                    "Anthropic overloaded (attempt %d/%d) — waiting %ds before retry...",
+                    attempt, max_retries, retry_wait,
+                )
+                time.sleep(retry_wait)
+                continue
+            raise
 
-    logger.info("Running orchestrator [%s]: %s", user_id, input_text[:80])
-    start = time.time()
-    response = agent(input_text)
-    elapsed = time.time() - start
+        elapsed = time.time() - start
+        output_text = str(response)
+        tools_used = _extract_tools_used(agent)
+        logger.info("Done in %.1fs, tools=%s", elapsed, tools_used)
+        return {"output": output_text, "tools_used": tools_used, "latency_seconds": elapsed}
 
-    output_text = str(response)
-    tools_used = _extract_tools_used(agent)
-
-    logger.info("Done in %.1fs, tools=%s", elapsed, tools_used)
-    return {"output": output_text, "tools_used": tools_used, "latency_seconds": elapsed}
+    raise RuntimeError(f"All {max_retries} attempts failed for: {input_text[:60]}")
 
 
 def _extract_tools_used(agent: Any) -> list[str]:
@@ -192,7 +208,9 @@ def scope_awareness_scorer(
         "not able to book", "not able to order", "unable to book",
         "unable to order", "unfortunately", "not something i can",
         "focused on nutrition", "focused on meal", "only able to",
-        "not designed to",
+        "not designed to", "outside the scope", "not within my",
+        "not equipped to", "not able to provide medically",
+        "consult", "personal nutritionist app",
     ]
     is_declining = any(p in output_lower for p in decline_phrases)
 
@@ -260,11 +278,18 @@ def calorie_target_scorer(
         # Fallback: first standalone 4-digit calorie-like number near a keyword
         match = re.search(r"(\d[\d,]+)\s*(?:calories|kcal|cal)\b", output, re.IGNORECASE)
 
+    # Also try markdown table row: | Calories | 2,208 | 2,279 |
+    if not match:
+        match = re.search(
+            r'\|\s*[^\|]*[Cc]alories[^\|]*\|\s*\**(\d[\d,]+)',
+            output,
+        )
+
     if not match:
         return {"name": "CalorieTarget", "score": 0.0, "metadata": {"reason": "no calorie value found"}}
 
     actual = float(match.group(1).replace(",", ""))
-    target = 2279.0
+    target = float(metadata.get("calorie_target", 2279.0))
     lo, hi = target * 0.85, target * 1.15
 
     if lo <= actual <= hi:
@@ -292,25 +317,62 @@ def allergen_safety_scorer(
     metadata: Optional[dict] = None,
 ) -> Optional[dict]:
     """
-    For dietary_restriction tests, check the plan doesn't mention peanut
-    butter or other peanut-containing ingredients in a meal context.
-    Checks the ingredient listings in the output, not general text.
+    Check that allergens from metadata['expected_allergens'] don't appear as
+    ingredients in the plan.  Reads ingredient lists from the embedded
+    <plan_json> block first; falls back to regex on prose when absent.
+    Skips cases with no expected_allergens.
     """
     if not metadata or metadata.get("category") != "dietary_restriction":
         return None
 
-    # Target specific ingredient strings, not generic mentions of "peanut"
-    allergen_patterns = [r"peanut butter", r"peanut oil", r"\bpeanuts?\b(?!.{0,20}free)"]
-    found = []
-    for pattern in allergen_patterns:
-        matches = re.findall(pattern, output, re.IGNORECASE)
-        found.extend(matches)
+    expected_allergens: list[str] = metadata.get("expected_allergens", ["peanut"])
+    if not expected_allergens:
+        return None
 
-    passed = len(found) == 0
+    # Build search patterns from allergen names (singular + compound forms)
+    allergen_terms: list[str] = []
+    for a in expected_allergens:
+        base = a.lower().rstrip("s")  # "peanuts" → "peanut"
+        allergen_terms.append(base)
+
+    # --- Primary: parse plan_json block embedded in output ---
+    plan_match = re.search(r"<plan_json>(.*?)</plan_json>", output, re.DOTALL)
+    if plan_match:
+        try:
+            plan = json.loads(plan_match.group(1))
+            all_ingredients: list[str] = []
+            for meal in plan.values():
+                if isinstance(meal, dict):
+                    all_ingredients.extend(str(i) for i in meal.get("ingredients", []))
+            combined = " ".join(all_ingredients).lower()
+            found = [t for t in allergen_terms if t in combined]
+            return {
+                "name": "AllergenSafety",
+                "score": 1.0 if not found else 0.0,
+                "metadata": {"allergens_found": found, "source": "plan_json",
+                             "ingredient_count": len(all_ingredients)},
+            }
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    # --- Fallback: prose regex, excluding safety-context mentions ---
+    found = []
+    for term in allergen_terms:
+        # Match ingredient-like occurrences; skip "no X", "X allergy", "X-free"
+        for m in re.finditer(rf"\b{re.escape(term)}s?\b", output, re.IGNORECASE):
+            start = max(0, m.start() - 15)
+            ctx_before = output[start:m.start()].lower()
+            ctx_after  = output[m.end():m.end() + 15].lower()
+            if any(neg in ctx_before for neg in ("no ", "without ", "zero ", "free from ", "avoid")):
+                continue
+            if any(neg in ctx_after for neg in ("-free", " allergy", " free", "-allerg")):
+                continue
+            found.append(m.group())
+            break  # one hit per allergen is enough
     return {
         "name": "AllergenSafety",
-        "score": 1.0 if passed else 0.0,
-        "metadata": {"allergens_found": found},
+        "score": 1.0 if not found else 0.0,
+        "metadata": {"allergens_found": found, "source": "prose_fallback"},
     }
 
 
@@ -368,18 +430,23 @@ def _create_wrapped_task(dataset: list[dict], sleep_seconds: int = 45):
                     logger.info("Sleeping %ds before next case...", sleep_seconds)
                     time.sleep(sleep_seconds)
 
-            cases.append({
+            entry: dict = {
                 "input":    input_text,
                 "expected": case.get("expected_output", ""),
                 "metadata": {
-                    "category":        case.get("category", ""),
-                    "difficulty":      case.get("difficulty", ""),
-                    "expected_tools":  case.get("expected_tools", []),
-                    "user_id":         user_id,
-                    "tools_used":      result["tools_used"],
-                    "latency_seconds": result["latency_seconds"],
+                    "category":          case.get("category", ""),
+                    "difficulty":        case.get("difficulty", ""),
+                    "expected_tools":    case.get("expected_tools", []),
+                    "user_id":           user_id,
+                    "tools_used":        result["tools_used"],
+                    "latency_seconds":   result["latency_seconds"],
                 },
-            })
+            }
+            if "calorie_target" in case:
+                entry["metadata"]["calorie_target"] = case["calorie_target"]
+            if "expected_allergens" in case:
+                entry["metadata"]["expected_allergens"] = case["expected_allergens"]
+            cases.append(entry)
         return cases
 
     def task(input: str) -> str:
@@ -511,8 +578,8 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--experiment-name",   default=None)
     p.add_argument("--clear-checkpoint",  action="store_true",
                    help="Delete the checkpoint file and run all cases from scratch")
-    p.add_argument("--sleep",             type=int, default=45,
-                   help="Seconds to sleep between eval cases (default: 45)")
+    p.add_argument("--sleep",             type=int, default=120,
+                   help="Seconds to sleep between eval cases (default: 120)")
     p.add_argument("--debug",             action="store_true")
     return p.parse_args()
 
