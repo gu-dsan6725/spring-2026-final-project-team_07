@@ -1,12 +1,21 @@
 import json
 import logging
+import os
 import re
 from collections import defaultdict
 
+import anthropic
 from strands import tool
 
 from personal_nutritionist.agents.intake.agent import create_intake_agent
 from personal_nutritionist.agents.planning.agent import create_planning_agent
+from personal_nutritionist.core.database import (
+    add_custom_recipe,
+    edit_custom_recipe as _db_edit_custom_recipe,
+    remove_from_cookbook,
+    remove_custom_recipe as _db_remove_custom_recipe,
+    get_custom_recipes,
+)
 from personal_nutritionist.core.dependencies import get_recipe_df
 from personal_nutritionist.core.memory import profile_from_memories
 from personal_nutritionist.core.nutrition import (
@@ -143,10 +152,18 @@ def build_meal_plan(
         request += " Include a snack."
     if override_filters:
         request += f" Use these filter overrides: {json.dumps(override_filters)}."
+    request += f" User ID for cookbook: {user_id}."
 
     # Delegate to the planning agent
     planning_agent = create_planning_agent(user_id=user_id)
-    response = str(planning_agent(request))
+    try:
+        response = str(planning_agent(request))
+    except ValueError as e:
+        logger.warning("build_meal_plan: planning agent raised ValueError: %s", e)
+        return {"error": str(e)}
+    except Exception as e:
+        logger.warning("build_meal_plan: planning agent raised unexpected error: %s", e)
+        return {"error": f"Planning failed: {e}"}
 
     # Extract the structured plan from <plan_json> tags
     plan_json_str = _extract_tag(response, "plan_json")
@@ -174,6 +191,328 @@ def build_meal_plan(
         },
         "planning_response": response,
     }
+
+
+_NUTRITION_ESTIMATE_PROMPT = """
+You are a nutrition expert. Given a recipe name, ingredients, and any known
+details, estimate the following per-serving nutritional and practical values.
+Respond with a JSON object only — no prose, no markdown fences.
+
+Required fields:
+- calories (float): total kcal per serving
+- protein (float): grams of protein per serving
+- fat (float): grams of fat per serving
+- carbs (float): grams of carbohydrates per serving
+- cost_per_serving (float): estimated USD cost per serving
+- prep_time (int): minutes of prep
+- cook_time (int): minutes of cooking
+- total_time (int): total minutes
+- servings (float): number of servings the recipe makes
+- category (str): one of breakfast, main_dish, side_dish, snack, dessert, drink
+
+Recipe name: {title}
+Ingredients: {ingredients}
+Known details: {known}
+""".strip()
+
+
+def _estimate_nutrition(title: str, ingredients: list[str], known: dict) -> dict:
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    prompt = _NUTRITION_ESTIMATE_PROMPT.format(
+        title=title,
+        ingredients=", ".join(ingredients) if ingredients else "unknown",
+        known=json.dumps({k: v for k, v in known.items() if v is not None}),
+    )
+    message = client.messages.create(
+        model=os.getenv("ORCHESTRATOR_MODEL", "claude-sonnet-4-6"),
+        max_tokens=512,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return json.loads(message.content[0].text)
+
+
+@tool
+def add_recipe_to_cookbook(
+    user_id: str,
+    title: str,
+    ingredients: list[str] | None = None,
+    steps: list[str] | None = None,
+    servings: float | None = None,
+    prep_time: int | None = None,
+    cook_time: int | None = None,
+    calories: float | None = None,
+    protein: float | None = None,
+    fat: float | None = None,
+    carbs: float | None = None,
+    cost_per_serving: float | None = None,
+    category: str | None = None,
+) -> str:
+    """
+    Add a custom recipe to the user's cookbook. Any missing nutritional or
+    timing fields are estimated automatically using Claude.
+
+    Always ask the user for title and ingredients before calling this tool.
+    Ask for servings, prep/cook time, and nutrition if they know them — but
+    do not block on those; estimate if the user can't provide them.
+
+    Args:
+        user_id: The user's unique identifier.
+        title: Recipe name.
+        ingredients: List of ingredient strings.
+        steps: Optional list of cooking steps.
+        servings: Number of servings.
+        prep_time: Prep time in minutes.
+        cook_time: Cook time in minutes.
+        calories: Calories per serving.
+        protein: Grams of protein per serving.
+        fat: Grams of fat per serving.
+        carbs: Grams of carbohydrates per serving.
+        cost_per_serving: Estimated USD cost per serving.
+        category: Recipe category (breakfast, main_dish, side_dish, snack, etc.).
+    """
+    known = {
+        "servings": servings, "prep_time": prep_time, "cook_time": cook_time,
+        "calories": calories, "protein": protein, "fat": fat, "carbs": carbs,
+        "cost_per_serving": cost_per_serving, "category": category,
+    }
+
+    needs_estimate = any(v is None for v in [
+        calories, protein, fat, carbs, cost_per_serving,
+        servings, prep_time, cook_time, category,
+    ])
+
+    if needs_estimate:
+        estimated = _estimate_nutrition(title, ingredients or [], known)
+    else:
+        estimated = {}
+
+    def _get(field: str, provided):
+        return provided if provided is not None else estimated.get(field, 0)
+
+    resolved_servings = _get("servings", servings) or 4.0
+    resolved_prep = _get("prep_time", prep_time) or 0
+    resolved_cook = _get("cook_time", cook_time) or 0
+    resolved_total = resolved_prep + resolved_cook
+
+    recipe = {
+        "title": title,
+        "calories": _get("calories", calories),
+        "protein": _get("protein", protein),
+        "fat": _get("fat", fat),
+        "carbs": _get("carbs", carbs),
+        "cost_per_serving": _get("cost_per_serving", cost_per_serving),
+        "total_cost": _get("cost_per_serving", cost_per_serving) * resolved_servings,
+        "servings": resolved_servings,
+        "prep_time": resolved_prep,
+        "cook_time": resolved_cook,
+        "total_time": resolved_total,
+        "rating": 0.0,
+        "rating_count": 0,
+        "num_steps": len(steps) if steps else 0,
+        "step_length": 0,
+        "ingredient_count": len(ingredients) if ingredients else 0,
+        "cluster": -1,
+        "category": _get("category", category) or "main_dish",
+        "ingredients": ingredients or [],
+        "ingredient_details": [],
+        "steps": steps or [],
+        "meal_slots": [],
+        "serving_multiplier": 1.0,
+    }
+
+    add_custom_recipe(user_id, recipe)
+    logger.info("add_recipe_to_cookbook user=%s title=%s estimated=%s", user_id, title, needs_estimate)
+    estimated_note = " (nutrition estimated by Claude)" if needs_estimate else ""
+    return f"Added '{title}' to {user_id}'s cookbook{estimated_note}."
+
+
+@tool
+def add_recipe_from_url(
+    user_id: str,
+    url: str,
+    extra_info: dict | None = None,
+) -> str:
+    """
+    Scrape a recipe from a URL, fill in any missing fields (via Claude estimation
+    or extra_info provided by the user), and add it to their cookbook.
+
+    Call this once you have the URL. If scraping succeeds but fields are missing,
+    ask the user to fill them in and call again with extra_info. If the user
+    says they don't know a field, pass it in extra_info as null so Claude estimates.
+
+    Args:
+        user_id: The user's unique identifier.
+        url: Full URL of the recipe page.
+        extra_info: Optional dict of user-supplied fields to merge before saving
+                    (e.g. {"cost_per_serving": 3.50, "servings": 4}).
+    """
+    from personal_nutritionist.core.scraper import scrape_recipe
+
+    try:
+        scraped = scrape_recipe(url)
+    except Exception as e:
+        logger.warning("add_recipe_from_url scrape failed url=%s err=%s", url, e)
+        return f"Could not fetch the recipe from that URL: {e}. Please check the URL and try again."
+
+    if extra_info:
+        scraped.update({k: v for k, v in extra_info.items() if v is not None})
+
+    title = scraped.get("title", "")
+    if not title:
+        return "Could not determine a recipe title from that page. Can you tell me the recipe name?"
+
+    missing_required = [
+        f for f in ["calories", "protein", "fat", "carbs", "cost_per_serving",
+                    "servings", "prep_time", "cook_time", "category"]
+        if not scraped.get(f)
+    ]
+
+    # Ask user only for cost if it's truly unknown (everything else we can estimate)
+    if "cost_per_serving" in missing_required and extra_info is None:
+        fields_str = ", ".join(missing_required)
+        return (
+            f"I scraped '{title}' successfully. I'm missing: {fields_str}. "
+            f"Do you know any of these? (especially cost per serving — I can estimate the rest)"
+        )
+
+    known = {k: scraped.get(k) for k in [
+        "servings", "prep_time", "cook_time", "calories", "protein",
+        "fat", "carbs", "cost_per_serving", "category",
+    ]}
+    needs_estimate = any(v is None for v in known.values())
+    if needs_estimate:
+        estimated = _estimate_nutrition(title, scraped.get("ingredients", []), known)
+    else:
+        estimated = {}
+
+    def _get(field, provided):
+        return provided if provided is not None else estimated.get(field, 0)
+
+    resolved_servings = _get("servings", scraped.get("servings")) or 4.0
+    resolved_prep = _get("prep_time", scraped.get("prep_time")) or 0
+    resolved_cook = _get("cook_time", scraped.get("cook_time")) or 0
+
+    recipe = {
+        "title": title,
+        "calories": _get("calories", scraped.get("calories")),
+        "protein": _get("protein", scraped.get("protein")),
+        "fat": _get("fat", scraped.get("fat")),
+        "carbs": _get("carbs", scraped.get("carbs")),
+        "cost_per_serving": _get("cost_per_serving", scraped.get("cost_per_serving")),
+        "total_cost": _get("cost_per_serving", scraped.get("cost_per_serving")) * resolved_servings,
+        "servings": resolved_servings,
+        "prep_time": resolved_prep,
+        "cook_time": resolved_cook,
+        "total_time": resolved_prep + resolved_cook,
+        "rating": 0.0,
+        "rating_count": 0,
+        "num_steps": len(scraped.get("steps", [])),
+        "step_length": 0,
+        "ingredient_count": len(scraped.get("ingredients", [])),
+        "cluster": -1,
+        "category": _get("category", scraped.get("category")) or "main_dish",
+        "ingredients": scraped.get("ingredients", []),
+        "ingredient_details": [],
+        "steps": scraped.get("steps", []),
+        "meal_slots": [],
+        "serving_multiplier": 1.0,
+        "source_url": url,
+    }
+
+    add_custom_recipe(user_id, recipe)
+    estimated_note = " (some fields estimated by Claude)" if needs_estimate else ""
+    logger.info("add_recipe_from_url user=%s title=%s estimated=%s", user_id, title, needs_estimate)
+    return f"Added '{title}' to {user_id}'s cookbook{estimated_note}."
+
+
+@tool
+def edit_cookbook_recipe(
+    user_id: str,
+    title: str,
+    new_title: str | None = None,
+    ingredients: list[str] | None = None,
+    steps: list[str] | None = None,
+    servings: float | None = None,
+    prep_time: int | None = None,
+    cook_time: int | None = None,
+    calories: float | None = None,
+    protein: float | None = None,
+    fat: float | None = None,
+    carbs: float | None = None,
+    cost_per_serving: float | None = None,
+    category: str | None = None,
+) -> str:
+    """
+    Edit fields on a custom recipe in the user's cookbook. Only provided fields
+    are updated — omitted fields are left unchanged. Only works on custom recipes
+    (ones added by the user), not base CSV recipes.
+
+    Args:
+        user_id: The user's unique identifier.
+        title: Current title of the recipe to edit.
+        new_title: New title if renaming.
+        ingredients: Replacement ingredient list.
+        steps: Replacement steps list.
+        servings: New serving count.
+        prep_time: New prep time in minutes.
+        cook_time: New cook time in minutes.
+        calories: New calories per serving.
+        protein: New grams of protein per serving.
+        fat: New grams of fat per serving.
+        carbs: New grams of carbs per serving.
+        cost_per_serving: New cost per serving in USD.
+        category: New category string.
+    """
+    updates: dict = {}
+    if new_title is not None:
+        updates["title"] = new_title
+    for field, val in [
+        ("ingredients", ingredients), ("steps", steps), ("servings", servings),
+        ("prep_time", prep_time), ("cook_time", cook_time), ("calories", calories),
+        ("protein", protein), ("fat", fat), ("carbs", carbs),
+        ("cost_per_serving", cost_per_serving), ("category", category),
+    ]:
+        if val is not None:
+            updates[field] = val
+
+    if "prep_time" in updates or "cook_time" in updates:
+        existing = next((r for r in get_custom_recipes(user_id) if r["title"] == title), {})
+        pt = updates.get("prep_time", existing.get("prep_time", 0))
+        ct = updates.get("cook_time", existing.get("cook_time", 0))
+        updates["total_time"] = (pt or 0) + (ct or 0)
+
+    found = _db_edit_custom_recipe(user_id, title, updates)
+    if not found:
+        return (
+            f"No custom recipe named '{title}' found in {user_id}'s cookbook. "
+            f"Note: only custom-added recipes can be edited, not base recipes."
+        )
+
+    changed = ", ".join(updates.keys())
+    logger.info("edit_cookbook_recipe user=%s title=%s fields=%s", user_id, title, changed)
+    return f"Updated '{updates.get('title', title)}': changed {changed}."
+
+
+@tool
+def remove_cookbook_recipe(user_id: str, title: str) -> str:
+    """
+    Remove a recipe from the user's cookbook. For base (CSV) recipes this hides
+    them from meal planning. For custom recipes this permanently deletes them.
+    The user can restore base recipes later via the Cookbook tab.
+
+    Args:
+        user_id: The user's unique identifier.
+        title: Title of the recipe to remove.
+    """
+    custom_titles = {r["title"] for r in get_custom_recipes(user_id)}
+    if title in custom_titles:
+        _db_remove_custom_recipe(user_id, title)
+        logger.info("remove_cookbook_recipe deleted custom user=%s title=%s", user_id, title)
+        return f"Permanently deleted custom recipe '{title}' from {user_id}'s cookbook."
+    else:
+        remove_from_cookbook(user_id, title)
+        logger.info("remove_cookbook_recipe excluded base user=%s title=%s", user_id, title)
+        return f"Removed '{title}' from {user_id}'s cookbook. You can restore it in the Cookbook tab."
 
 
 _PREP_WORDS = {

@@ -250,6 +250,35 @@ def profile_from_memories(user_id: str) -> dict:
     return profile
 
 
+def replace_memory_field(
+    user_id: str,
+    field: str,
+    content: str,
+    value,
+) -> dict:
+    """
+    Replace any existing memory for a given metadata field, then write the new one.
+    Use instead of add_memory for fields that should have exactly one value (e.g. allergies).
+    If value is an empty list or None, only deletes — does not write a new memory.
+    """
+    memories = get_memory(user_id)
+    for m in memories:
+        if (m.get("metadata") or {}).get("field") == field:
+            try:
+                delete_memory(m["id"])
+            except Exception:
+                pass
+
+    is_empty = value is None or value == [] or value == ""
+    if is_empty:
+        logger.info("replace_memory_field user=%s field=%s — cleared", user_id, field)
+        return {"status": "cleared"}
+
+    result = add_memory(user_id, content, metadata={"field": field, "value": value})
+    logger.info("replace_memory_field user=%s field=%s value=%s", user_id, field, value)
+    return result
+
+
 def delete_all_memories(user_id: str) -> dict:
     """
     Delete all memories for a user.

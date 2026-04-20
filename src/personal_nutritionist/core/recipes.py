@@ -359,21 +359,19 @@ def _best_candidate(
     goal: str,
     week_titles: set[str] | None = None,
 ) -> Recipe | None:
-    eligible = [r for r in candidates if r.title not in used_titles]
-    if not eligible:
+    if not candidates:
         return None
 
     def _adjusted_score(r: Recipe) -> float:
-        score = _score_recipe(
-            r, slot_calorie_target, daily_protein_target,
-            used_categories, used_clusters, goal,
-        )
-        # Strong penalty for titles already used earlier in the week
+        score = _score_recipe(r, slot_calorie_target, daily_protein_target,
+                              used_categories, used_clusters, goal)
+        if r.title in used_titles:
+            score -= _WEEK_REPEAT_PENALTY
         if week_titles and r.title in week_titles:
             score -= _WEEK_REPEAT_PENALTY
         return score
 
-    return max(eligible, key=_adjusted_score)
+    return max(candidates, key=_adjusted_score)
 
 
 def build_day_plan(
@@ -381,12 +379,9 @@ def build_day_plan(
     filters: RecipeSearchFilters,
     include_snack: bool = False,
     include_side: bool = False,
-    exclude_titles: set[str] | None = None,
     calorie_target: float | None = None,
     protein_target: float | None = None,
     goal: str = "maintenance",
-    used_categories: set[str] | None = None,
-    used_clusters: set[int] | None = None,
     week_titles: set[str] | None = None,
 ) -> DayPlan:
     """
@@ -403,9 +398,10 @@ def build_day_plan(
     recipes. Snack is only added when include_snack=True AND the main meals fall
     short of 85% of the calorie or protein target (always added when no target).
     """
-    used_titles: set[str] = set(exclude_titles or [])
-    day_categories: set[str] = set(used_categories or [])
-    day_clusters: set[int] = set(used_clusters or [])
+    used_titles: set[str] = set()
+    day_categories: set[str] = set()
+    day_clusters: set[int] = set()
+    wt = week_titles or set()
 
     slot_cal_targets: dict[str, float] = {}
     if calorie_target:
@@ -418,7 +414,6 @@ def build_day_plan(
     def _pick(slot: MealSlot, slot_cal_target: float | None) -> Recipe:
         base = filters.model_copy(update={"limit": 50})
         candidates = search_meals(df, slot, base)
-        wt = week_titles or set()
 
         recipe = _best_candidate(
             candidates, used_titles, slot_cal_target,
@@ -540,44 +535,23 @@ def build_week_plan(
     diversifies without being blocked entirely.
     """
     plans: List[DayPlan] = []
-    week_categories: set[str] = set()
-    week_clusters: set[int]   = set()
-    week_titles: set[str]     = set()
+    week_titles: set[str] = set()
 
     for _ in range(n_days):
-        # Hard-exclude only the previous day to avoid consecutive repeats
-        prev_titles: set[str] = set()
-        if plans:
-            prev = plans[-1]
-            prev_titles = {prev.breakfast.title, prev.lunch.title, prev.dinner.title}
-            for opt in (prev.lunch_side, prev.dinner_side, prev.snack):
-                if opt:
-                    prev_titles.add(opt.title)
-
         plan = build_day_plan(
             df, filters,
             include_snack=include_snack,
             include_side=include_side,
-            exclude_titles=prev_titles,
             calorie_target=calorie_target,
             protein_target=protein_target,
             goal=goal,
-            used_categories=week_categories,
-            used_clusters=week_clusters,
             week_titles=week_titles,
         )
         plans.append(plan)
 
-        day_titles = {plan.breakfast.title, plan.lunch.title, plan.dinner.title}
-        for opt in (plan.lunch_side, plan.dinner_side, plan.snack):
-            if opt:
-                day_titles.add(opt.title)
-        week_titles     |= day_titles
-        week_categories |= {plan.breakfast.category, plan.lunch.category, plan.dinner.category}
-        week_clusters   |= {plan.breakfast.cluster, plan.lunch.cluster, plan.dinner.cluster}
-        for opt in (plan.lunch_side, plan.dinner_side, plan.snack):
-            if opt:
-                week_categories.add(opt.category)
-                week_clusters.add(opt.cluster)
+        for slot in (plan.breakfast, plan.lunch, plan.lunch_side,
+                     plan.dinner, plan.dinner_side, plan.snack):
+            if slot:
+                week_titles.add(slot.title)
 
     return plans

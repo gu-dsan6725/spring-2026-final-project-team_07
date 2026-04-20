@@ -67,7 +67,7 @@ def estimate_protein_target(profile_dict: dict) -> float:
     return target
 
 @tool
-def search_meals_tool(slot: str, filters_dict: dict) -> list[dict]:
+def search_meals_tool(slot: str, filters_dict: dict, user_id: str | None = None) -> list[dict]:
     """
     Search recipes eligible for a given meal slot (breakfast, lunch, dinner, snack)
     using the provided filters. Returns a list of matching recipes as dicts.
@@ -75,10 +75,11 @@ def search_meals_tool(slot: str, filters_dict: dict) -> list[dict]:
     Args:
         slot: One of "breakfast", "lunch", "dinner", "snack".
         filters_dict: A dict matching RecipeSearchFilters fields.
+        user_id: Optional user ID to apply cookbook exclusions and custom recipes.
     """
     meal_slot: MealSlot = slot  # type: ignore[assignment]
     filters = RecipeSearchFilters(**filters_dict)
-    df = get_recipe_df()
+    df = get_recipe_df(user_id=user_id)
     recipes = search_meals(df, meal_slot, filters)
     logger.info("search_meals slot=%s returned %s results", slot, len(recipes))
     return [r.model_dump() for r in recipes]
@@ -93,6 +94,7 @@ def build_week_plan_tool(
     calorie_target: float | None = None,
     protein_target: float | None = None,
     goal: str = "maintenance",
+    user_id: str | None = None,
 ) -> list[dict]:
     """
     Build a multi-day meal plan scored against the user's nutrition targets.
@@ -107,9 +109,10 @@ def build_week_plan_tool(
         calorie_target: Daily calorie target — pass from estimate_calorie_target.
         protein_target: Daily protein target — pass from estimate_protein_target.
         goal: User's goal (fat_loss / muscle_gain / maintenance).
+        user_id: Optional user ID to apply cookbook exclusions and custom recipes.
     """
     filters = RecipeSearchFilters(**filters_dict)
-    df = get_recipe_df()
+    df = get_recipe_df(user_id=user_id)
     plans = build_week_plan(
         df, filters,
         n_days=n_days,
@@ -147,6 +150,7 @@ def build_day_plan_tool(
     calorie_target: float | None = None,
     protein_target: float | None = None,
     goal: str = "maintenance",
+    user_id: str | None = None,
 ) -> dict:
     """
     Build a full day meal plan scored against the user's nutrition targets.
@@ -161,9 +165,10 @@ def build_day_plan_tool(
         calorie_target: Daily calorie target — pass from estimate_calorie_target.
         protein_target: Daily protein target — pass from estimate_protein_target.
         goal: User's goal (fat_loss / muscle_gain / maintenance).
+        user_id: Optional user ID to apply cookbook exclusions and custom recipes.
     """
     filters = RecipeSearchFilters(**filters_dict)
-    df = get_recipe_df()
+    df = get_recipe_df(user_id=user_id)
     plan = build_day_plan(
         df, filters,
         include_snack=include_snack,
