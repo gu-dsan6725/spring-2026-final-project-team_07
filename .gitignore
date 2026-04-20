@@ -177,4 +177,7 @@ cython_debug/
 !test-output/
 !test-output/*.log
 
+# Eval checkpoint — contains raw LLM outputs, regenerated on each run
+evals/eval_checkpoint.json
+
 

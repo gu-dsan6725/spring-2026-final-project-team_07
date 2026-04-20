@@ -5,7 +5,7 @@ import pandas as pd
 
 from personal_nutritionist.core.recipes import load_recipes
 
-_RECIPES_CSV = Path(os.getenv("RECIPES_CSV", "data/recipes_enriched.csv"))
+_RECIPES_CSV = Path(os.getenv("RECIPES_CSV", "data/recipes_with_steps.csv"))
 
 _recipe_df: pd.DataFrame | None = None
 

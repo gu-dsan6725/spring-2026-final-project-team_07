@@ -86,27 +86,49 @@ def search_meals_tool(slot: str, filters_dict: dict) -> list[dict]:
 
 @tool
 def build_week_plan_tool(
-    filters_dict: dict, n_days: int = 7, include_snack: bool = False
+    filters_dict: dict,
+    n_days: int = 7,
+    include_snack: bool = False,
+    include_side: bool = False,
+    calorie_target: float | None = None,
+    protein_target: float | None = None,
+    goal: str = "maintenance",
 ) -> list[dict]:
     """
-    Build a multi-day meal plan with no duplicate meals within a day and no
-    meal repeated on consecutive days.
+    Build a multi-day meal plan scored against the user's nutrition targets.
+    Meals are selected to hit per-slot calorie targets and maximise protein,
+    with soft variety penalties to diversify categories and clusters across days.
 
     Args:
         filters_dict: A dict matching RecipeSearchFilters fields.
         n_days: Number of days to plan (default 7).
-        include_snack: Whether to include a snack each day.
+        include_snack: Whether to include a snack each day (only added if needed).
+        include_side: Whether to include a side dish with lunch and dinner.
+        calorie_target: Daily calorie target — pass from estimate_calorie_target.
+        protein_target: Daily protein target — pass from estimate_protein_target.
+        goal: User's goal (fat_loss / muscle_gain / maintenance).
     """
     filters = RecipeSearchFilters(**filters_dict)
     df = get_recipe_df()
-    plans = build_week_plan(df, filters, n_days=n_days, include_snack=include_snack)
-    logger.info("build_week_plan n_days=%s include_snack=%s", n_days, include_snack)
+    plans = build_week_plan(
+        df, filters,
+        n_days=n_days,
+        include_snack=include_snack,
+        include_side=include_side,
+        calorie_target=calorie_target,
+        protein_target=protein_target,
+        goal=goal,
+    )
+    logger.info("build_week_plan n_days=%s include_snack=%s include_side=%s", n_days, include_snack, include_side)
+    _SLIM = {"steps", "ingredient_details"}
     return [
         {
-            "breakfast": p.breakfast.model_dump(),
-            "lunch": p.lunch.model_dump(),
-            "dinner": p.dinner.model_dump(),
-            "snack": p.snack.model_dump() if p.snack else None,
+            "breakfast": p.breakfast.model_dump(exclude=_SLIM),
+            "lunch": p.lunch.model_dump(exclude=_SLIM),
+            "lunch_side": p.lunch_side.model_dump(exclude=_SLIM) if p.lunch_side else None,
+            "dinner": p.dinner.model_dump(exclude=_SLIM),
+            "dinner_side": p.dinner_side.model_dump(exclude=_SLIM) if p.dinner_side else None,
+            "snack": p.snack.model_dump(exclude=_SLIM) if p.snack else None,
             "totals": {
                 "calories": p.total_calories,
                 "protein": p.total_protein,
@@ -118,29 +140,52 @@ def build_week_plan_tool(
 
 
 @tool
-def build_day_plan_tool(filters_dict: dict, include_snack: bool = False) -> dict:
+def build_day_plan_tool(
+    filters_dict: dict,
+    include_snack: bool = False,
+    include_side: bool = False,
+    calorie_target: float | None = None,
+    protein_target: float | None = None,
+    goal: str = "maintenance",
+) -> dict:
     """
-    Build a full day meal plan (breakfast, lunch, dinner, optional snack)
-    using the provided filters. Returns a DayPlan as a dict with totals.
+    Build a full day meal plan scored against the user's nutrition targets.
+    Meals are selected to hit per-slot calorie targets and maximise protein,
+    with soft variety penalties. Snack is only added when needed to close a
+    calorie or protein gap.
 
     Args:
         filters_dict: A dict matching RecipeSearchFilters fields.
-        include_snack: Whether to include a snack in the plan.
+        include_snack: Whether to consider adding a snack.
+        include_side: Whether to include a side dish with lunch and dinner.
+        calorie_target: Daily calorie target — pass from estimate_calorie_target.
+        protein_target: Daily protein target — pass from estimate_protein_target.
+        goal: User's goal (fat_loss / muscle_gain / maintenance).
     """
     filters = RecipeSearchFilters(**filters_dict)
     df = get_recipe_df()
-    plan = build_day_plan(df, filters, include_snack=include_snack)
+    plan = build_day_plan(
+        df, filters,
+        include_snack=include_snack,
+        include_side=include_side,
+        calorie_target=calorie_target,
+        protein_target=protein_target,
+        goal=goal,
+    )
     logger.info(
         "build_day_plan calories=%.0f protein=%.1fg cost=$%.2f",
         plan.total_calories,
         plan.total_protein,
         plan.total_cost,
     )
+    _SLIM = {"steps", "ingredient_details"}
     return {
-        "breakfast": plan.breakfast.model_dump(),
-        "lunch": plan.lunch.model_dump(),
-        "dinner": plan.dinner.model_dump(),
-        "snack": plan.snack.model_dump() if plan.snack else None,
+        "breakfast": plan.breakfast.model_dump(exclude=_SLIM),
+        "lunch": plan.lunch.model_dump(exclude=_SLIM),
+        "lunch_side": plan.lunch_side.model_dump(exclude=_SLIM) if plan.lunch_side else None,
+        "dinner": plan.dinner.model_dump(exclude=_SLIM),
+        "dinner_side": plan.dinner_side.model_dump(exclude=_SLIM) if plan.dinner_side else None,
+        "snack": plan.snack.model_dump(exclude=_SLIM) if plan.snack else None,
         "totals": {
             "calories": plan.total_calories,
             "protein": plan.total_protein,

@@ -1,136 +1,181 @@
-=== 07-planning-agent-test | 2026-04-07T18:06:59 ===
+=== 07-planning-agent-test | 2026-04-19T15:09:44 ===
 
 USER: Build me a day plan.
-I'll help you build a day plan! Let me start by loading your profile to understand your goals and constraints.
+I'll build a personalized day plan for you. Let me start by loading your profile.
 Tool #1: get_user_profile
-Great! I found your profile. Now let me calculate your daily calorie and protein targets based on your fat loss goal.
+Great! Now let me calculate your daily nutrition targets and build your plan.
 Tool #2: estimate_calorie_target
 
 Tool #3: estimate_protein_target
-Perfect! Now I'll build your day plan using your preferences and constraints.
-
-**Your Daily Targets:**
-- **Calories:** 2,279 cal (fat loss goal)
-- **Protein:** 162g (essential for preserving muscle during fat loss)
-- **Max time per meal:** 30 minutes
-- **Max cost per serving:** $3.00
-- **Preferred meals:** Comfort Meals
-- **Allergies/Dislikes:** No peanuts, no broccoli
+Perfect! Now let me build your day plan with your targets and preferences.
 Tool #4: build_day_plan_tool
-Let me try rebuilding with the correct filter format:
+Let me correct that and rebuild your plan:
 Tool #5: build_day_plan_tool
-## Your Daily Meal Plan
+## Your Personalized Day Plan for Fat Loss 🎯
 
-Here's your personalized 3-meal plan aligned with your **fat loss goal**:
+Based on your profile, I've built a plan tailored to your **fat loss goal**. Your daily targets are:
+- **Calories:** 2,279 kcal
+- **Protein:** 162g
 
-### **Breakfast: Creamy Dijon Chicken**
-- 🕐 Total Time: 30 min (10 min prep + 20 min cook)
-- 🔥 Calories: 345 | 💪 Protein: 37.5g | Fat: 20g | Carbs: 3.75g
-- 💰 Cost per serving: $2.33
-- ⭐ Rating: 5.0/5 (35 reviews)
+Here's your meal plan:
 
-### **Lunch: Chicken and Mandarin Salad with Simple Sesame Dressing**
-- 🕐 Total Time: 15 min
-- 🔥 Calories: 440 | 💪 Protein: 40g | Fat: 20g | Carbs: 25g
-- 💰 Cost per serving: $2.60
-- ⭐ Rating: 4.72/5 (14 reviews)
+### 🌅 Breakfast: Kimchi Quesadillas
+- **Servings:** 1.5 servings
+- **Calories:** 567 | **Protein:** 28.5g
+- **Cost per serving:** $1.42
+- **Time:** 20 minutes (5 min prep, 15 min cook)
+- **Ingredients:** Kimchi, cheddar cheese, flour tortillas, butter or oil, eggs
 
-### **Dinner: Air Fryer Grilled Cheese**
-- 🕐 Total Time: 15 min (5 min prep + 10 min cook)
-- 🔥 Calories: 674 | 💪 Protein: 36g | Fat: 34g | Carbs: 56g
-- 💰 Cost per serving: $1.77
-- ⭐ Rating: 4.75/5 (4 reviews)
+### 🥗 Lunch: Air Fryer Grilled Cheese + Salmon Patties (side)
+- **Main - Servings:** 1.5 servings
+  - **Calories:** 1,011 | **Protein:** 54g
+  - **Cost per serving:** $2.66
+  - **Time:** 15 minutes (5 min prep, 10 min cook)
+  
+- **Side - Servings:** 1 serving
+  - **Calories:** 132 | **Protein:** 15g
+  - **Cost per serving:** $1.36
+  - **Time:** 25 minutes (10 min prep, 15 min cook)
 
----
+### 🍗 Dinner: Creamy Dijon Chicken + Caesar Salad (side)
+- **Main - Servings:** 1 serving
+  - **Calories:** 345 | **Protein:** 37.5g
+  - **Cost per serving:** $2.33
+  - **Time:** 30 minutes (10 min prep, 20 min cook)
+  
+- **Side - Servings:** 1 serving
+  - **Calories:** 156 | **Protein:** 6g
+  - **Cost per serving:** $1.42
+  - **Time:** 20 minutes (prep only)
 
-## **Daily Totals**
-| Metric | Plan | Target | Status |
-|--------|------|--------|--------|
-| **Calories** | 1,459 | 2,279 | ⚠️ Under target by 820 cal |
-| **Protein** | 113.5g | 162g | ⚠️ Below target by 48.5g |
-| **Daily Cost** | $6.70 | — | ✅ Well under budget |
+### 📊 Daily Totals
+- **Total Calories:** 2,210 (within your 2,279 target)
+- **Total Protein:** 141g (slightly below your 162g target)
+- **Total Daily Cost:** $9.19
+- **All meals under 30 minutes** ✓
 
-**Summary:** Your plan is below your daily targets. This meal combination is lighter, which may be too restrictive for sustainable fat loss. Would you like me to:
-1. **Add a snack** to reach closer to your targets?
-2. **Rebuild the plan** with different preferences?
-3. **Add a 4th meal** to get you closer to your calorie and protein goals?
+This plan creates a modest calorie deficit to support fat loss while keeping meals quick and budget-friendly. The protein is solid, though slightly below target—if you'd like to boost protein further, let me know and I can adjust the plan!
 
-Let me know how you'd like to adjust!
+<plan_json>
+{"breakfast": {"title": "Kimchi Quesadillas", "total_cost": 1.9, "cost_per_serving": 1.4249999999999998, "rating": 5.0, "rating_count": 9, "servings": 2.0, "prep_time": 5, "cook_time": 15, "total_time": 20, "num_steps": 5, "step_length": 700, "ingredient_count": 5, "calories": 567.0, "protein": 28.5, "fat": 27.0, "carbs": 52.5, "cluster": 5, "category": "breakfast", "ingredients": ["kimchi", "cheddar cheese", "flour tortillas", "butter or oil", "eggs"], "meal_slots": ["breakfast"], "serving_multiplier": 1.5}, "lunch": {"title": "Air Fryer Grilled Cheese", "total_cost": 1.77, "cost_per_serving": 2.6550000000000002, "rating": 4.75, "rating_count": 4, "servings": 1.0, "prep_time": 5, "cook_time": 10, "total_time": 15, "num_steps": 4, "step_length": 594, "ingredient_count": 5, "calories": 1011.0, "protein": 54.0, "fat": 51.0, "carbs": 84.0, "cluster": 4, "category": "main_dish", "ingredients": ["butter", "parmesan", "italian seasoning", "sourdough bread", "cheese"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.5}, "lunch_side": {"title": "Salmon Patties", "total_cost": 8.16, "cost_per_serving": 1.36, "rating": 5.0, "rating_count": 8, "servings": 6.0, "prep_time": 10, "cook_time": 15, "total_time": 25, "num_steps": 5, "step_length": 998, "ingredient_count": 7, "calories": 131.66666666666666, "protein": 15.0, "fat": 5.0, "carbs": 6.666666666666667, "cluster": 3, "category": "side_dish", "ingredients": ["pink salmon", "onion", "salt", "black pepper", "egg", "plain breadcrumbs", "lemon juice", "cooking oil"], "meal_slots": ["side"], "serving_multiplier": 1.0}, "dinner": {"title": "Creamy Dijon Chicken", "total_cost": 9.35, "cost_per_serving": 2.33, "rating": 5.0, "rating_count": 35, "servings": 4.0, "prep_time": 10, "cook_time": 20, "total_time": 30, "num_steps": 8, "step_length": 1316, "ingredient_count": 14, "calories": 345.0, "protein": 37.5, "fat": 20.0, "carbs": 3.75, "cluster": 0, "category": "main_dish", "ingredients": ["italian seasoning", "garlic powder", "onion powder", "salt", "black pepper", "chicken breast", "olive oil", "butter", "cloves of garlic", "chicken broth", "dijon mustard", "worcestershire sauce", "heavy cream", "parmesan cheese", "spinach"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.0}, "dinner_side": {"title": "Caesar Salad", "total_cost": 8.5, "cost_per_serving": 1.42, "rating": 5.0, "rating_count": 8, "servings": 6.0, "prep_time": 20, "cook_time": 0, "total_time": 20, "num_steps": 5, "step_length": 867, "ingredient_count": 10, "calories": 155.66666666666666, "protein": 6.0, "fat": 11.666666666666666, "carbs": 6.666666666666667, "cluster": 2, "category": "side_dish", "ingredients": ["lemon", "cloves garlic", "anchovy filets", "black pepper", "dijon mustard", "mayonnaise", "parmesan", "romaine lettuce", "croutons", "parmesan"], "meal_slots": ["side"], "serving_multiplier": 1.0}, "snack": null, "totals": {"calories": 2210.3333333333335, "protein": 141.0, "cost": 9.19}}
+</plan_json>
 USER: Now build me a 3-day plan with the same constraints.
-I'll build a 3-day meal plan using your same constraints and preferences.
+I'll build a 3-day meal plan with your same preferences and targets.
 Tool #6: build_week_plan_tool
-## Your 3-Day Meal Plan
+## Your 3-Day Personalized Plan for Fat Loss 🎯
 
-Here's your personalized 3-day plan with **no duplicate meals within a day** and **no meals repeating on consecutive days**.
-
----
-
-### **DAY 1**
-
-#### **Breakfast: Creamy Dijon Chicken**
-- 🕐 Time: 30 min | 🔥 Calories: 345 | 💪 Protein: 37.5g | 💰 Cost: $2.33/serving
-- ⭐ 5.0/5 (35 reviews)
-
-#### **Lunch: Chicken and Mandarin Salad with Simple Sesame Dressing**
-- 🕐 Time: 15 min | 🔥 Calories: 440 | 💪 Protein: 40g | 💰 Cost: $2.60/serving
-- ⭐ 4.72/5 (14 reviews)
-
-#### **Dinner: Air Fryer Grilled Cheese**
-- 🕐 Time: 15 min | 🔥 Calories: 674 | 💪 Protein: 36g | 💰 Cost: $1.77/serving
-- ⭐ 4.75/5 (4 reviews)
-
-**Day 1 Totals:** 1,459 cal | 113.5g protein | $6.70 cost
+I've built a 3-day diverse meal plan staying within your budget and time constraints. Each day targets your daily goals: **2,279 calories** and **162g protein**.
 
 ---
 
-### **DAY 2**
+## **DAY 1**
 
-#### **Breakfast: Cottage Cheese Crab Bowl**
-- 🕐 Time: 5 min | 🔥 Calories: 221 | 💪 Protein: 34g | 💰 Cost: $1.21/serving
-- ⭐ 4.92/5 (25 reviews)
+### 🌅 Breakfast: Kimchi Quesadillas
+- **Servings:** 1.5 servings
+- **Calories:** 567 | **Protein:** 28.5g
+- **Cost per serving:** $1.42 | **Time:** 20 min
 
-#### **Lunch: Skillet Mac and Cheese**
-- 🕐 Time: 20 min | 🔥 Calories: 579 | 💪 Protein: 33.25g | 💰 Cost: $1.30/serving
-- ⭐ 4.29/5 (42 reviews) — *Comfort meal option*
+### 🥗 Lunch: Air Fryer Grilled Cheese + Salmon Patties
+- **Main - Servings:** 1.5 servings
+  - **Calories:** 1,011 | **Protein:** 54g | **Cost:** $2.66 | **Time:** 15 min
+- **Side - Servings:** 1 serving
+  - **Calories:** 132 | **Protein:** 15g | **Cost:** $1.36 | **Time:** 25 min
 
-#### **Dinner: Creamy Spinach Artichoke Chicken**
-- 🕐 Time: 30 min | 🔥 Calories: 317.5 | 💪 Protein: 32.5g | 💰 Cost: $2.88/serving
-- ⭐ 4.96/5 (48 reviews)
+### 🍗 Dinner: Creamy Dijon Chicken + Caesar Salad
+- **Main - Servings:** 1 serving
+  - **Calories:** 345 | **Protein:** 37.5g | **Cost:** $2.33 | **Time:** 30 min
+- **Side - Servings:** 1 serving
+  - **Calories:** 156 | **Protein:** 6g | **Cost:** $1.42 | **Time:** 20 min
 
-**Day 2 Totals:** 1,118 cal | 99.75g protein | $5.39 cost
-
----
-
-### **DAY 3**
-
-#### **Breakfast: Creamy Dijon Chicken**
-- 🕐 Time: 30 min | 🔥 Calories: 345 | 💪 Protein: 37.5g | 💰 Cost: $2.33/serving
-- ⭐ 5.0/5 (35 reviews)
-
-#### **Lunch: Chicken and Mandarin Salad with Simple Sesame Dressing**
-- 🕐 Time: 15 min | 🔥 Calories: 440 | 💪 Protein: 40g | 💰 Cost: $2.60/serving
-- ⭐ 4.72/5 (14 reviews)
-
-#### **Dinner: Air Fryer Grilled Cheese**
-- 🕐 Time: 15 min | 🔥 Calories: 674 | 💪 Protein: 36g | 💰 Cost: $1.77/serving
-- ⭐ 4.75/5 (4 reviews)
-
-**Day 3 Totals:** 1,459 cal | 113.5g protein | $6.70 cost
+**Day 1 Totals:** 2,210 cal | 141g protein | $9.19
 
 ---
 
-## **3-Day Summary**
+## **DAY 2**
 
-| Metric | Average | Target | Status |
-|--------|---------|--------|--------|
-| **Daily Calories** | 1,345 | 2,279 | ⚠️ 934 cal under target |
-| **Daily Protein** | 108.9g | 162g | ⚠️ 53.1g under target |
-| **Daily Cost** | $6.26 | — | ✅ Well under budget |
+### 🌅 Breakfast: Pineapple Protein Smoothie
+- **Servings:** 1.5 servings
+- **Calories:** 518 | **Protein:** 36.75g
+- **Cost per serving:** $1.47 | **Time:** 5 min
+- Cottage cheese, banana, pineapple, flaxseed—quick & packed with protein!
 
-**Note:** Your 3-day plan is consistently under your daily targets. For sustainable fat loss, you need meals that reach closer to your calorie and protein goals. Would you like me to:
+### 🥗 Lunch: Skillet Mac and Cheese + Antipasto Salad
+- **Main - Servings:** 1.5 servings
+  - **Calories:** 869 | **Protein:** 49.9g | **Cost:** $1.95 | **Time:** 20 min
+- **Side - Servings:** 1 serving
+  - **Calories:** 161 | **Protein:** 11.25g | **Cost:** $2.74 | **Time:** 15 min
 
-1. **Add snacks** to each day to boost calories and protein?
-2. **Rebuild without the cost constraint** to access more protein-dense meals?
-3. **Increase meals to 4 per day** to hit your targets?
+### 🍗 Dinner: Chicken & Mandarin Salad + Cheesy Pinto Beans
+- **Main - Servings:** 1 serving
+  - **Calories:** 440 | **Protein:** 40g | **Cost:** $2.60 | **Time:** 15 min
+- **Side - Servings:** 1 serving
+  - **Calories:** 186 | **Protein:** 10g | **Cost:** $0.73 | **Time:** 20 min
 
-Let me know how you'd like to adjust!
+**Day 2 Totals:** 2,175 cal | 148g protein | $9.49
+
+---
+
+## **DAY 3**
+
+### 🌅 Breakfast: Southwest Tortilla Baked Eggs
+- **Servings:** 1.5 servings
+- **Calories:** 489 | **Protein:** 31.5g
+- **Cost per serving:** $0.90 | **Time:** 30 min
+- Eggs, tortilla, cheese, peppers & green chiles—hearty & budget-friendly!
+
+### 🥗 Lunch: BBQ Chicken Burrito Bowls + Macaroni Salad
+- **Main - Servings:** 1.5 servings
+  - **Calories:** 728 | **Protein:** 48.75g | **Cost:** $2.67 | **Time:** 20 min
+- **Side - Servings:** 1.5 servings
+  - **Calories:** 216 | **Protein:** 7.5g | **Cost:** $0.78 | **Time:** 25 min
+
+### 🍗 Dinner: Honey Peach Grilled Cheese + Pepperoni Pasta Salad
+- **Main - Servings:** 1 serving
+  - **Calories:** 432 | **Protein:** 28g | **Cost:** $2.71 | **Time:** 20 min
+- **Side - Servings:** 1.5 servings
+  - **Calories:** 287 | **Protein:** 16.5g | **Cost:** $1.83 | **Time:** 25 min
+
+**Day 3 Totals:** 2,151 cal | 132g protein | $8.89
+
+---
+
+## 📊 **3-Day Summary**
+- **Average Daily Calories:** 2,179 (great deficit for fat loss)
+- **Average Daily Protein:** 140.4g (slightly below target, but solid)
+- **Average Daily Cost:** $9.19
+- **All meals under 30 minutes** ✓
+- **Excellent variety** across all 3 days!
+
+This plan gives you **complete meal variety** while staying consistent with your budget and time constraints. The mix of quick smoothies, comfort meals, and fresh salads keeps things interesting and sustainable!
+
+<plan_json>
+[
+  {
+    "breakfast": {"title": "Kimchi Quesadillas", "total_cost": 1.9, "cost_per_serving": 1.4249999999999998, "rating": 5.0, "rating_count": 9, "servings": 2.0, "prep_time": 5, "cook_time": 15, "total_time": 20, "num_steps": 5, "step_length": 700, "ingredient_count": 5, "calories": 567.0, "protein": 28.5, "fat": 27.0, "carbs": 52.5, "cluster": 5, "category": "breakfast", "ingredients": ["kimchi", "cheddar cheese", "flour tortillas", "butter or oil", "eggs"], "meal_slots": ["breakfast"], "serving_multiplier": 1.5},
+    "lunch": {"title": "Air Fryer Grilled Cheese", "total_cost": 1.77, "cost_per_serving": 2.6550000000000002, "rating": 4.75, "rating_count": 4, "servings": 1.0, "prep_time": 5, "cook_time": 10, "total_time": 15, "num_steps": 4, "step_length": 594, "ingredient_count": 5, "calories": 1011.0, "protein": 54.0, "fat": 51.0, "carbs": 84.0, "cluster": 4, "category": "main_dish", "ingredients": ["butter", "parmesan", "italian seasoning", "sourdough bread", "cheese"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.5},
+    "lunch_side": {"title": "Salmon Patties", "total_cost": 8.16, "cost_per_serving": 1.36, "rating": 5.0, "rating_count": 8, "servings": 6.0, "prep_time": 10, "cook_time": 15, "total_time": 25, "num_steps": 5, "step_length": 998, "ingredient_count": 7, "calories": 131.66666666666666, "protein": 15.0, "fat": 5.0, "carbs": 6.666666666666667, "cluster": 3, "category": "side_dish", "ingredients": ["pink salmon", "onion", "salt", "black pepper", "egg", "plain breadcrumbs", "lemon juice", "cooking oil"], "meal_slots": ["side"], "serving_multiplier": 1.0},
+    "dinner": {"title": "Creamy Dijon Chicken", "total_cost": 9.35, "cost_per_serving": 2.33, "rating": 5.0, "rating_count": 35, "servings": 4.0, "prep_time": 10, "cook_time": 20, "total_time": 30, "num_steps": 8, "step_length": 1316, "ingredient_count": 14, "calories": 345.0, "protein": 37.5, "fat": 20.0, "carbs": 3.75, "cluster": 0, "category": "main_dish", "ingredients": ["italian seasoning", "garlic powder", "onion powder", "salt", "black pepper", "chicken breast", "olive oil", "butter", "cloves of garlic", "chicken broth", "dijon mustard", "worcestershire sauce", "heavy cream", "parmesan cheese", "spinach"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.0},
+    "dinner_side": {"title": "Caesar Salad", "total_cost": 8.5, "cost_per_serving": 1.42, "rating": 5.0, "rating_count": 8, "servings": 6.0, "prep_time": 20, "cook_time": 0, "total_time": 20, "num_steps": 5, "step_length": 867, "ingredient_count": 10, "calories": 155.66666666666666, "protein": 6.0, "fat": 11.666666666666666, "carbs": 6.666666666666667, "cluster": 2, "category": "side_dish", "ingredients": ["lemon", "cloves garlic", "anchovy filets", "black pepper", "dijon mustard", "mayonnaise", "parmesan", "romaine lettuce", "croutons", "parmesan"], "meal_slots": ["side"], "serving_multiplier": 1.0},
+    "snack": null,
+    "totals": {"calories": 2210.3333333333335, "protein": 141.0, "cost": 9.19}
+  },
+  {
+    "breakfast": {"title": "Pineapple Protein Smoothie", "total_cost": 0.98, "cost_per_serving": 1.47, "rating": 4.31, "rating_count": 13, "servings": 1.0, "prep_time": 5, "cook_time": 0, "total_time": 5, "num_steps": 1, "step_length": 88, "ingredient_count": 7, "calories": 518.25, "protein": 36.75, "fat": 11.25, "carbs": 67.5, "cluster": 5, "category": "breakfast", "ingredients": ["cottage cheese", "banana", "pineapple chunks", "brown sugar", "vanilla extract", "flaxseed", "milk of choice"], "meal_slots": ["breakfast"], "serving_multiplier": 1.5},
+    "lunch": {"title": "Skillet Mac and Cheese", "total_cost": 2.59, "cost_per_serving": 1.9500000000000002, "rating": 4.29, "rating_count": 42, "servings": 2.0, "prep_time": 0, "cook_time": 20, "total_time": 20, "num_steps": 5, "step_length": 983, "ingredient_count": 7, "calories": 868.875, "protein": 49.875, "fat": 30.375, "carbs": 99.0, "cluster": 5, "category": "main_dish", "ingredients": ["salt", "elbow macaroni*", "butter", "evaporated milk", "Dijon mustard", "cayenne pepper", "shredded sharp cheddar"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.5},
+    "lunch_side": {"title": "Antipasto Salad", "total_cost": 21.97, "cost_per_serving": 2.74, "rating": 5.0, "rating_count": 5, "servings": 8.0, "prep_time": 15, "cook_time": 0, "total_time": 15, "num_steps": 3, "step_length": 705, "ingredient_count": 17, "calories": 161.25, "protein": 11.25, "fat": 11.25, "carbs": 3.75, "cluster": 0, "category": "side_dish", "ingredients": ["salad greens", "artichoke hearts", "grape tomatoes", "mozzarella", "salami", "kalamata olives", "banana peppers", "red onion", "provolone", "extra virgin olive oil", "red wine vinegar", "lemon juice", "dijon mustard", "garlic powder", "italian seasoning", "sugar", "salt", "black pepper", "parmesan"], "meal_slots": ["side"], "serving_multiplier": 1.0},
+    "dinner": {"title": "Chicken and Mandarin Salad with Simple Sesame Dressing", "total_cost": 5.2, "cost_per_serving": 2.6, "rating": 4.72, "rating_count": 14, "servings": 2.0, "prep_time": 15, "cook_time": 0, "total_time": 15, "num_steps": 3, "step_length": 746, "ingredient_count": 12, "calories": 440.0, "protein": 40.0, "fat": 20.0, "carbs": 25.0, "cluster": 4, "category": "main_dish", "ingredients": ["light or neutral oil*", "rice vinegar", "soy sauce", "toasted sesame oil", "brown sugar", "grated fresh ginger", "sesame seeds", "salad greens**", "mandarin oranges", "rotisserie chicken breast", "sliced almonds", "small red onion", "avocado"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.0},
+    "dinner_side": {"title": "Cheesy Pinto Beans", "total_cost": 2.92, "cost_per_serving": 0.73, "rating": 4.9, "rating_count": 87, "servings": 4.0, "prep_time": 10, "cook_time": 10, "total_time": 20, "num_steps": 6, "step_length": 780, "ingredient_count": 8, "calories": 186.25, "protein": 10.0, "fat": 6.25, "carbs": 22.5, "cluster": 3, "category": "side_dish", "ingredients": ["garlic", "jalapeño", "cooking oil", "pinto beans", "smoked paprika", "cumin", "black pepper", "hot sauce", "cheddar cheese"], "meal_slots": ["side"], "serving_multiplier": 1.0},
+    "snack": null,
+    "totals": {"calories": 2174.625, "protein": 147.875, "cost": 9.49}
+  },
+  {
+    "breakfast": {"title": "Southwest Tortilla Baked Eggs", "total_cost": 2.41, "cost_per_serving": 0.8999999999999999, "rating": 5.0, "rating_count": 10, "servings": 2.0, "prep_time": 10, "cook_time": 20, "total_time": 30, "num_steps": 8, "step_length": 1078, "ingredient_count": 10, "calories": 489.0, "protein": 31.5, "fat": 27.0, "carbs": 30.0, "cluster": 0, "category": "breakfast", "ingredients": ["olive oil", "flour tortilla", "cheddar cheese", "red bell pepper", "green chiles", "eggs", "salt", "pepper", "salsa", "green onion"], "meal_slots": ["breakfast"], "serving_multiplier": 1.5},
+    "lunch": {"title": "BBQ Chicken Burrito Bowls", "total_cost": 7.1, "cost_per_serving": 2.67, "rating": 4.94, "rating_count": 16, "servings": 4.0, "prep_time": 20, "cook_time": 0, "total_time": 20, "num_steps": 3, "step_length": 551, "ingredient_count": 9, "calories": 727.5, "protein": 48.75, "fat": 22.5, "carbs": 82.5, "cluster": 5, "category": "main_dish", "ingredients": ["chicken breast", "bbq sauce", "rice", "black beans", "corn kernels thawed", "zucchini", "pepper jack cheese", "green onions", "avocado"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.5},
+    "lunch_side": {"title": "Macaroni Salad", "total_cost": 4.15, "cost_per_serving": 0.78, "rating": 5.0, "rating_count": 9, "servings": 8.0, "prep_time": 15, "cook_time": 10, "total_time": 25, "num_steps": 5, "step_length": 620, "ingredient_count": 9, "calories": 215.625, "protein": 7.5, "fat": 13.125, "carbs": 16.875, "cluster": 3, "category": "side_dish", "ingredients": ["hard-boiled eggs", "red bell pepper", "red onion", "celery", "macaroni", "mayonnaise", "dijon mustard", "sweet pickle relish", "red wine vinegar", "granulated sugar", "salt", "black pepper"], "meal_slots": ["side"], "serving_multiplier": 1.5},
+    "dinner": {"title": "Honey Peach Grilled Cheese", "total_cost": 5.42, "cost_per_serving": 2.71, "rating": 5.0, "rating_count": 3, "servings": 2.0, "prep_time": 10, "cook_time": 10, "total_time": 20, "num_steps": 6, "step_length": 685, "ingredient_count": 7, "calories": 432.0, "protein": 28.0, "fat": 20.0, "carbs": 35.0, "cluster": 5, "category": "main_dish", "ingredients": ["peach", "basil", "mozzarella ball", "sourdough bread", "butter", "honey", "chili flakes", "sea salt"], "meal_slots": ["lunch", "dinner"], "serving_multiplier": 1.0},
+    "dinner_side": {"title": "Pepperoni Pasta Salad", "total_cost": 7.31, "cost_per_serving": 1.83, "rating": 4.55, "rating_count": 11, "servings": 6.0, "prep_time": 10, "cook_time": 15, "total_time": 25, "num_steps": 3, "step_length": 881, "ingredient_count": 9, "calories": 287.25, "protein": 16.5, "fat": 11.25, "carbs": 30.0, "cluster": 2, "category": "side_dish", "ingredients": ["bowtie pasta", "salt", "spinach", "kidney beans", "pepperoni", "mozzarella cubed", "grape tomatoes", "italian or caesar dressing", "parmesan", "pepper"], "meal_slots": ["side"], "serving_multiplier": 1.5},
+    "snack": null,
+    "totals": {"calories": 2151.375, "protein": 132.25, "cost": 8.89}
+  }
+]
+</plan_json>
