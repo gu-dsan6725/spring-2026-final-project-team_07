@@ -37,6 +37,15 @@ Guidelines:
 - When you have enough information for a basic plan (goal + at least one constraint),
   let the user know they're ready for planning
 
+Updating list fields (allergies, disliked_ingredients, preferred_categories):
+- These fields store the COMPLETE current list — always pass the full updated list,
+  not just the item being added or removed.
+- Before adding or removing an item, call get_user_profile to read the current list.
+- Example: user has ["nuts", "shellfish"] and says "remove nuts" →
+  call update_dietary_preferences(allergies=["shellfish"])
+- Example: user has ["nuts"] and says "also add dairy" →
+  call update_dietary_preferences(allergies=["nuts", "dairy"])
+
 Fields you need for a complete profile:
   goal (fat_loss / muscle_gain / maintenance)
   weight_lbs, height_in, age, sex

@@ -1,4 +1,4 @@
-=== 06-intake-agent-test | 2026-04-07T17:58:08 ===
+=== 06-intake-agent-test | 2026-04-20T14:04:22 ===
 
 Reset memories for 'intake_test_user'
 
@@ -7,82 +7,84 @@ USER: Hi, my name is intake_test_user. I want to lose fat.
 Tool #1: get_user_profile
 
 Tool #2: update_goal
-Welcome! 🎯 I've saved your goal as **fat loss**.
+Welcome! 👋 Great to have you here. I've saved your goal as **fat loss**. ✅
 
-To build you a personalized plan, I'll need a few more details. Let's start with the basics:
+To start personalizing your plan, I'd love to learn a bit about you. Can you share:
 
-1. **What's your current weight (lbs) and height (inches)?**
-2. **How old are you, and what's your sex (male/female)?**
+1. **Your age, sex, height, and current weight?**
+2. **How active are you?** (sedentary / lightly active / moderately active / active / very active)
 USER: I'm 180 lbs, 5'10" (70 inches), 28 years old, male. I'm moderately active.
 
 Tool #3: update_body_stats
 
 Tool #4: update_activity_level
-Saved! Here's what I have so far:
-- ⚖️ **Weight:** 180 lbs | **Height:** 70 in | **Age:** 28 | **Sex:** Male
-- 🏃 **Activity Level:** Moderate
+All saved! ✅ Here's what I've got so far:
 
-Now let's talk about your diet. Do you have any **food allergies** or **ingredients you dislike**? And are there any **types of meals** you particularly enjoy (e.g., Mediterranean, comfort food, high-protein, etc.)?
+- **Weight:** 180 lbs | **Height:** 5'10" | **Age:** 28 | **Sex:** Male
+- **Activity level:** Moderately active
+
+Now let's talk about your diet. Do you have any **food allergies** or **ingredients you dislike**? And are there any **types of meals** you enjoy (e.g., comfort food, Mediterranean, high-protein, etc.)?
 USER: I'm allergic to peanuts. I dislike broccoli. I prefer Comfort Meals.
 
 Tool #5: update_dietary_preferences
-Got it, all saved! 🚨
-- **Allergy:** Peanuts (will always be excluded)
+Got it, all saved! ✅
+
+- **Allergy:** Peanuts 🚨 (will always be excluded)
 - **Disliked:** Broccoli
-- **Preferred meals:** Comfort Meals 😋
+- **Preferred meals:** Comfort Meals
 
-Last few questions — let's nail down your practical constraints:
+Almost done! Just a few practical questions:
 
-1. **How many meals per day** do you want to plan for?
+1. **How many meals a day** do you want to eat?
 2. **What's your max budget per serving** (in USD)?
 3. **How much time** can you spend on cooking (max minutes per meal)?
 USER: My budget is $3 per serving, 30 minutes max, and I eat 3 meals a day.
 
 Tool #6: update_meal_constraints
-All saved! Here's your complete profile:
+All saved! ✅
+
+- **Budget:** $3/serving
+- **Max cook time:** 30 minutes
+- **Meals per day:** 3
+
+---
+
+🎉 **Your profile is complete!** Here's a summary of everything I have:
 
 | Field | Value |
 |---|---|
-| 🎯 Goal | Fat Loss |
-| ⚖️ Weight | 180 lbs |
-| 📏 Height | 70 in |
-| 🎂 Age | 28 |
-| 👤 Sex | Male |
-| 🏃 Activity Level | Moderate |
-| 🚨 Allergies | Peanuts |
-| 🚫 Dislikes | Broccoli |
-| 🍽️ Preferred Meals | Comfort Meals |
-| 💰 Budget | $3/serving |
-| ⏱️ Max Cook Time | 30 minutes |
-| 🍴 Meals/Day | 3 |
+| Goal | Fat Loss |
+| Weight | 180 lbs |
+| Height | 5'10" |
+| Age | 28 |
+| Sex | Male |
+| Activity Level | Moderate |
+| Allergy | Peanuts 🚨 |
+| Dislikes | Broccoli |
+| Preferred Meals | Comfort Meals |
+| Budget | $3/serving |
+| Max Cook Time | 30 min |
+| Meals/Day | 3 |
 
-You're all set! ✅ Your profile is complete and ready for meal planning. A personalized fat-loss comfort meal plan — peanut-free, broccoli-free, and budget-friendly — can be generated for you anytime. Let me know how you'd like to proceed!
+You're all set for meal planning! Your personalized fat-loss comfort meal plan will be peanut-free, quick, and budget-friendly. Let me know if anything needs to be updated! 🥗
 USER: Can you tell me everything you have stored about me so far?
-Sure! Let me pull up your full profile right now.
+Sure! Let me pull up your full profile.
 Tool #7: get_user_profile
-
-Tool #8: recall_user_info
-
-Tool #9: recall_user_info
-
-Tool #10: recall_user_info
-
-Tool #11: recall_user_info
-Based on everything stored and confirmed during our conversation, here's the full picture of what I have on you:
+Here's everything I have stored about you:
 
 | Field | Value |
 |---|---|
-| 🎯 **Goal** | Fat Loss |
-| ⚖️ **Weight** | 180 lbs |
-| 📏 **Height** | 70 inches (5'10") |
-| 🎂 **Age** | 28 |
-| 👤 **Sex** | Male |
-| 🏃 **Activity Level** | Moderate |
-| 🚨 **Allergies** | Peanuts |
-| 🚫 **Disliked Ingredients** | Broccoli |
-| 🍽️ **Preferred Meal Categories** | Comfort Meals |
-| 💰 **Max Cost per Serving** | $3.00 |
-| ⏱️ **Max Cook Time** | 30 minutes |
-| 🍴 **Meals per Day** | 3 |
+| **Goal** | Fat Loss |
+| **Weight** | 180 lbs |
+| **Height** | 5'10" (70 in) |
+| **Age** | 28 |
+| **Sex** | Male |
+| **Activity Level** | Moderate |
+| **Allergy** | Peanuts 🚨 |
+| **Dislikes** | Broccoli |
+| **Preferred Meals** | Comfort Meals |
+| **Budget** | $3/serving |
+| **Max Cook Time** | 30 minutes |
+| **Meals/Day** | 3 |
 
-That's everything! Let me know if anything needs to be updated or corrected. 😊
+Everything looks good! Let me know if you'd like to update anything. 😊
