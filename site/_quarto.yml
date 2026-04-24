@@ -5,10 +5,12 @@ project:
     - cp ../deliverables/paper/final_paper.pdf ./final_paper.pdf
     - cp ../deliverables/poster/poster.pdf ./poster.pdf
     - cp ../deliverables/slides/slide_deck_print.pdf ./slide_deck_print.pdf
+    - cp ../deliverables/demo/sage_demo.mp4 ./sage_demo.mp4
   resources:
     - "final_paper.pdf"
     - "poster.pdf"
     - "slide_deck_print.pdf"
+    - "sage_demo.mp4"
 
 website:
   title: "Sage · Agentic AI Nutritionist"

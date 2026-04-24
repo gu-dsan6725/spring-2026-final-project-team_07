@@ -213,11 +213,15 @@ SLOT_LABELS = {
 }
 
 def _recipe_line(recipe: dict) -> str:
+    title = recipe.get("title", "(unknown recipe)")
+    calories = recipe.get("calories", 0) or 0
+    protein = recipe.get("protein", 0) or 0
+    cost = recipe.get("cost_per_serving", 0) or 0
     return (
-        f"{recipe['title']} — "
-        f"{recipe['calories']:.0f} kcal | "
-        f"{recipe['protein']:.1f}g protein | "
-        f"${recipe['cost_per_serving']:.2f}/serving"
+        f"{title} — "
+        f"{calories:.0f} kcal | "
+        f"{protein:.1f}g protein | "
+        f"${cost:.2f}/serving"
     )
 
 def _generate_plan(user_id: str, n_days: int = 7) -> list[dict]:

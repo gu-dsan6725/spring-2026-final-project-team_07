@@ -169,19 +169,22 @@ def build_meal_plan(
         logger.warning("build_meal_plan: planning agent raised unexpected error: %s", e)
         return {"error": f"Planning failed: {e}"}
 
-    # Extract the structured plan — prefer <plan_json> tags, fall back to side-channel.
-    plan_json_str = _extract_tag(response, "plan_json")
-    if plan_json_str:
-        plan_data = _enrich_plan(json.loads(plan_json_str))
+    # Extract the structured plan. Prefer the side-channel data captured directly
+    # from the tool output — it's guaranteed to include every recipe field. The
+    # LLM-written <plan_json> tag is used only as a fallback because the model
+    # occasionally summarizes and drops fields like cost_per_serving.
+    import personal_nutritionist.agents.planning.tools as _planning_tools
+    if _planning_tools.last_plan_data is not None:
+        raw = _planning_tools.last_plan_data
+        plan_data = _enrich_plan(raw[0] if len(raw) == 1 and plan_type == "day" else raw)
+        _planning_tools.last_plan_data = None
     else:
-        import personal_nutritionist.agents.planning.tools as _planning_tools
-        if _planning_tools.last_plan_data is not None:
-            logger.info("build_meal_plan: <plan_json> tag missing — using side-channel plan data")
-            raw = _planning_tools.last_plan_data
-            plan_data = _enrich_plan(raw[0] if len(raw) == 1 and plan_type == "day" else raw)
-            _planning_tools.last_plan_data = None
+        plan_json_str = _extract_tag(response, "plan_json")
+        if plan_json_str:
+            logger.info("build_meal_plan: side-channel empty, falling back to <plan_json> tag")
+            plan_data = _enrich_plan(json.loads(plan_json_str))
         else:
-            logger.warning("build_meal_plan: no <plan_json> tag and no side-channel data")
+            logger.warning("build_meal_plan: no side-channel data and no <plan_json> tag")
             return {
                 "error": "Planning agent did not return a structured plan.",
                 "planning_response": response,

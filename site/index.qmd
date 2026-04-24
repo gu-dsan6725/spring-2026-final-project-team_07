@@ -20,7 +20,7 @@ The orchestrator agent routes user intent to two specialized sub-agents, an inta
 
 ---
 
-## Deliverables
+## Learn About Sage
 
 ::: {.deliverables-grid}
 
@@ -52,12 +52,14 @@ Presentation deck walking through the problem, architecture, evaluation results,
 [View poster (PDF)](poster.pdf){.btn .btn-primary}
 :::
 
-::: {.deliverable}
+::: {.deliverable .deliverable-wide}
 ### Demo
-Live walkthrough of Sage handling a multi-turn conversation: profile setup, meal planning, and shopping list generation.
+Walkthrough of Sage handling a multi-turn conversation: profile setup, meal planning, and shopping list generation.
 
-<!-- TODO: replace with live URL or video link when ready -->
-[Demo coming soon](#){.btn .btn-secondary}
+<video controls preload="metadata" width="100%" style="border-radius: 6px; margin-top: 0.5rem;">
+  <source src="sage_demo.mp4" type="video/mp4">
+  Your browser does not support embedded video. <a href="sage_demo.mp4">Download the demo video</a>.
+</video>
 :::
 
 :::
