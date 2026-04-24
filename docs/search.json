@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Sage",
+    "section": "",
+    "text": "A multi-agent meal-planning system that combines persistent user memory with grounded recipe retrieval and a deterministic audit layer. Built for Georgetown University DSAN 6725, Spring 2026."
+  },
+  {
+    "objectID": "index.html#in-brief",
+    "href": "index.html#in-brief",
+    "title": "Sage",
+    "section": "In brief",
+    "text": "In brief\nMeal-planning apps tend to fall into one of two modes: manual trackers that burden the user with data entry, or fully generative AI systems that sacrifice nutritional reliability for friction reduction. Sage sits between the two poles, using a multi-agent pipeline built on the Strands Agent SDK to combine conversational interaction with persistent cross-session memory and nutritionally grounded plan generation.\nThe orchestrator agent routes user intent to two specialized sub-agents, an intake agent that maintains the user profile through natural conversation, and a planning agent that assembles meal plans from a curated recipe database. Nutritional targets are computed deterministically, dietary restrictions are enforced through a deterministic audit layer, and every plan is drawn from validated recipes rather than generated freely."
+  },
+  {
+    "objectID": "index.html#deliverables",
+    "href": "index.html#deliverables",
+    "title": "Sage",
+    "section": "Deliverables",
+    "text": "Deliverables\n\n\nPaper\nA conference-style paper covering motivation, related work, system architecture, data, evaluation, and findings.\nRead the paper (PDF)\n\n\nCode\nFull source, including agent definitions, tool implementations, evaluation harness, and data pipeline.\nBrowse the repository\n\n\nSlides\nPresentation deck walking through the problem, architecture, evaluation results, and key takeaways.\nView slides (PDF)\n\n\nPoster\n48” × 36” conference poster summarizing the system and results.\nView poster (PDF)\n\n\nDemo\nLive walkthrough of Sage handling a multi-turn conversation: profile setup, meal planning, and shopping list generation.\n\nDemo coming soon"
+  },
+  {
+    "objectID": "index.html#authors",
+    "href": "index.html#authors",
+    "title": "Sage",
+    "section": "Authors",
+    "text": "Authors\nTyler Blue and Andrew Moy, M.S. Data Science & Analytics, Georgetown University.\nDSAN 6725, Spring 2026. Instructor: Professor Amit Arora."
+  }
+]
