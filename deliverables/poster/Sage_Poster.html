@@ -1,0 +1,1408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agentic AI Nutritionist · DSAN 6725 Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     48" x 36" conference poster. Design canvas: 2400 x 1800.
+     Georgetown palette:
+       #003ca6  Hoya Blue     (primary accent, links, keylines)
+       #004990  Medium Blue   (headings, chart bars)
+       #002c62  Deep Navy     (body banners, chart reference)
+       #63656b  Stone Gray    (secondary text, rules)
+     ========================================================= */
+  :root {
+    --paper:        #F6F3EC;   /* warm cream poster ground */
+    --paper-2:      #EFEAD9;
+    --card:         #FFFFFF;
+    --ink:          #14181F;
+    --ink-2:        #3A3E47;
+    --muted:        #63656b;   /* Georgetown stone */
+    --hoya:         #003ca6;   /* Georgetown Hoya Blue */
+    --medium:       #004990;   /* Medium Blue */
+    --navy:         #002c62;   /* Deep Navy */
+    --hoya-soft:    rgba(0,60,166,0.08);
+    --hoya-line:    rgba(0,60,166,0.22);
+    --rule:         rgba(20,24,31,0.16);
+    --rule-soft:    rgba(20,24,31,0.08);
+    --gold:         #a07c21;   /* small warm accent for Budget-Bytes caveat */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0B0E14; }
+
+  body {
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .stage {
+    width: 100%;
+    max-width: 2400px;
+    aspect-ratio: 4 / 3;
+    position: relative;
+  }
+  .poster-wrap {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .poster {
+    width: 2400px;
+    height: 1800px;
+    background: var(--paper);
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    transform-origin: center;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.45);
+  }
+
+  /* ============ PRINT: 48" x 36" poster paper ============ */
+  @page {
+    size: 48in 36in;
+    margin: 0;
+  }
+  @media print {
+    html, body {
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 48in;
+      height: 36in;
+      overflow: hidden !important;
+    }
+    body { display: block !important; }
+    .stage {
+      all: unset !important;
+      display: block !important;
+      width: 2400px !important;
+      height: 1800px !important;
+    }
+    .poster-wrap {
+      position: static !important;
+      display: block !important;
+      width: 2400px !important;
+      height: 1800px !important;
+    }
+    /* Keep the poster at its native 2400x1800 design resolution and
+       scale up 1.92x so it fills 48in x 36in exactly (at 96 DPI). */
+    .poster {
+      width: 2400px !important;
+      height: 1800px !important;
+      transform: scale(1.92) !important;
+      transform-origin: top left !important;
+      box-shadow: none !important;
+      page-break-inside: avoid;
+    }
+    /* Keep ink dense — stop browsers stripping backgrounds */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+
+  /* ============ TYPE SYSTEM ============ */
+  .serif    { font-family: 'Source Serif 4', Georgia, serif; font-optical-sizing: auto; }
+  .sans     { font-family: 'Source Sans 3', system-ui, sans-serif; }
+  .mono     { font-family: 'JetBrains Mono', monospace; }
+  .italic   { font-style: italic; }
+
+  .eyebrow {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--hoya);
+  }
+  .sect-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: var(--hoya);
+  }
+  .small-caps {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ============ HEADER BANNER ============ */
+  .banner {
+    position: relative;
+    background: var(--navy);
+    color: #f1f4f9;
+    padding: 22px 70px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 28px;
+    align-items: center;
+    border-bottom: 5px solid var(--hoya);
+  }
+  .banner::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -5px;
+    height: 5px;
+    background: linear-gradient(90deg, var(--hoya) 0 55%, var(--medium) 55% 85%, var(--navy) 85% 100%);
+  }
+  .seal-wrap {
+    width: 132px; height: 132px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    padding: 10px;
+  }
+  .seal-wrap img { width: 100%; height: 100%; object-fit: contain; }
+
+  .banner-title { min-width: 0; }
+  .banner-title .dept {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b7c6e3;
+    margin-bottom: 5px;
+  }
+  .banner-title h1 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 68px;
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+    color: #fff;
+  }
+  .banner-title h1 .amp { color: #b7c6e3; font-weight: 400; font-style: italic; }
+  .banner-title .sub {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.2;
+    color: #dbe4f4;
+    margin-top: 8px;
+    max-width: 1400px;
+  }
+
+  .banner-meta {
+    text-align: right;
+    font-family: 'Source Sans 3', sans-serif;
+    color: #dbe4f4;
+    line-height: 1.4;
+  }
+  .banner-meta .venue {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b7c6e3;
+    margin-bottom: 6px;
+  }
+  .banner-meta .authors {
+    font-family: 'Source Serif 4', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.15;
+  }
+  .banner-meta .authors em { font-weight: 400; color: #b7c6e3; font-style: italic; padding: 0 3px; }
+  .banner-meta .affil {
+    font-size: 11px;
+    margin-top: 4px;
+    color: #b7c6e3;
+    letter-spacing: 0.02em;
+  }
+  .banner-meta .date {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b7c6e3;
+  }
+
+  /* ============ POSTER BODY ============ */
+  .body {
+    padding: 10px 70px 10px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: min-content;
+    column-gap: 20px;
+    row-gap: 8px;
+  }
+
+  /* ============ SECTION BASE ============ */
+  .section { display: flex; flex-direction: column; min-width: 0; }
+  .section-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: baseline;
+    border-bottom: 2px solid var(--hoya);
+    padding-bottom: 5px;
+    margin-bottom: 6px;
+  }
+  .section-head .num {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--hoya);
+    line-height: 1;
+  }
+  .section-head h2 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--navy);
+  }
+  .section-head .tag {
+    justify-self: end;
+    align-self: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .section p, .section li, .section td {
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    line-height: 1.38;
+    color: var(--ink);
+  }
+  .section p + p { margin-top: 8px; }
+  .section strong { font-weight: 700; color: var(--navy); }
+  .section em { font-style: italic; }
+
+  .inline-cite {
+    color: var(--hoya);
+    font-style: italic;
+    white-space: nowrap;
+  }
+
+  /* ============ SPANS ============ */
+  .c-abstract   { grid-column: 1 / span 12; }
+  .c-left   { grid-column: 1 / span 4; }
+  .c-mid    { grid-column: 5 / span 4; }
+  .c-right  { grid-column: 9 / span 4; }
+  .c-full   { grid-column: 1 / span 12; }
+  .c-8      { grid-column: 1 / span 8; }
+  .c-4-r    { grid-column: 9 / span 4; }
+  .c-6-l    { grid-column: 1 / span 6; }
+  .c-6-r    { grid-column: 7 / span 6; }
+
+  /* ============ ABSTRACT BOX ============ */
+  .abstract-box {
+    background: var(--card);
+    border: 1px solid var(--hoya-line);
+    border-left: 6px solid var(--hoya);
+    padding: 14px 24px 16px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 24px;
+    row-gap: 4px;
+    align-items: start;
+  }
+  .abstract-box .abs-label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--hoya);
+    padding-top: 4px;
+  }
+  .abstract-box p {
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink);
+    column-count: 3;
+    column-gap: 28px;
+    column-rule: 1px solid var(--rule-soft);
+  }
+  .abstract-box p strong { color: var(--navy); }
+
+  /* ============ BACKGROUND: the 695 kcal stat ============ */
+  .stat-block {
+    background: var(--hoya-soft);
+    border: 1px solid var(--hoya-line);
+    padding: 10px 14px;
+    margin: 8px 0 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: center;
+    border-radius: 3px;
+  }
+  .stat-block {
+    padding: 14px 16px !important;
+  }
+  .stat-block .stat-num-BUMP {} /* marker */
+  .stat-block .stat-num {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 46px;
+    line-height: 1;
+    color: var(--hoya);
+    letter-spacing: -0.02em;
+  }
+  .stat-block .stat-num .u {
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--navy);
+    margin-left: 2px;
+  }
+  .stat-block .stat-text {
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    line-height: 1.32;
+    color: var(--ink);
+  }
+  .stat-block .stat-text strong { color: var(--navy); }
+  .stat-block .src {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ============ DATA PANEL ============ */
+  .data-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin: 8px 0 8px;
+  }
+  .data-stat {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    border-radius: 3px;
+  }
+  .data-stat .n {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--navy);
+  }
+  .data-stat .n .u { font-size: 13px; font-style: italic; color: var(--muted); margin-left: 2px; }
+  .data-stat .lab {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .caveat {
+    background: rgba(160,124,33,0.10);
+    border-left: 3px solid var(--gold);
+    padding: 10px 14px;
+    border-radius: 2px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--ink);
+    margin-top: 6px;
+  }
+  .caveat .tag {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-right: 6px;
+  }
+
+  /* ============ METHODS / TECH STACK ============ */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .stack-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    border-radius: 3px;
+  }
+  .stack-card .tool {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--hoya);
+    letter-spacing: 0.01em;
+  }
+  .stack-card .role {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .stack-card p {
+    font-size: 11.5px !important;
+    line-height: 1.3 !important;
+    margin-top: 3px !important;
+    color: var(--ink-2);
+  }
+
+  /* ============ ARCHITECTURE PANEL ============ */
+  .arch-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 10px 14px 12px;
+    border-radius: 3px;
+    margin-top: 2px;
+  }
+  .arch-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .fig-caption {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.35;
+  }
+  .fig-caption b {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  /* ============ AUDIT LOOP FLOW ============ */
+  .flow {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    margin: 6px 0;
+  }
+  .flow-step {
+    flex: 1 1 0;
+    min-width: 0;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--medium);
+    padding: 14px 12px;
+    border-radius: 2px;
+  }
+  .flow-step .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--hoya);
+    letter-spacing: 0.06em;
+  }
+  .flow-step h5 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.2;
+    color: var(--navy);
+    margin-top: 4px;
+  }
+  .flow-step .m {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .flow-arrow {
+    align-self: center;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 2px;
+  }
+  .flow-step.decision {
+    border-top-color: transparent;
+    background: var(--navy);
+    color: #e7eef8;
+    display: grid; place-items: center;
+    text-align: center;
+    border-radius: 4px;
+    flex: 0 0 112px;
+  }
+  .flow-step.decision h5 { color: #fff; font-style: italic; }
+  .flow-step.decision .m { color: #b7c6e3; }
+  .flow-step.pass {
+    border-top-color: var(--hoya);
+    background: var(--hoya);
+    color: #fff;
+  }
+  .flow-step.pass h5 { color: #fff; }
+  .flow-step.pass .n, .flow-step.pass .m { color: #cfdcf3; }
+
+  .retry-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .retry-card {
+    background: var(--card);
+    border: 1px dashed var(--hoya);
+    padding: 12px 14px;
+    border-radius: 2px;
+  }
+  .retry-card.fallback {
+    background: var(--paper-2);
+    border-style: solid;
+  }
+  .retry-card .tg {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--hoya);
+  }
+  .retry-card h5 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--navy);
+    margin-top: 4px;
+    line-height: 1.2;
+  }
+  .retry-card .m {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ============ EVALUATION PANEL ============ */
+  .eval-head-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 6px;
+  }
+  .eval-head-grid p { font-size: 14px; line-height: 1.38; }
+  .eval-split {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 22px;
+  }
+
+  /* bar chart */
+  .chart-title {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .bars { display: flex; flex-direction: column; gap: 4px; }
+  .bars { gap: 6px !important; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 108px 1fr 50px 28px;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .bar-row .lbl { color: var(--ink); font-weight: 600; }
+  .bar-row .track {
+    height: 16px;
+    background: #e7e2d2;
+    border-radius: 1px;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+  .bar-row .fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    background: var(--hoya);
+  }
+  .bar-row.ok   .fill { background: var(--medium); }
+  .bar-row.weak .fill { background: var(--navy); opacity: 0.55; }
+  .bar-row .val {
+    text-align: right;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .bar-row .n {
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  /* category table */
+  .cat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .cat-table th {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    text-align: left;
+    padding: 4px 5px;
+    border-bottom: 2px solid var(--navy);
+    white-space: nowrap;
+  }
+  .cat-table th:not(:first-child) { text-align: right; }
+  .cat-table td {
+    padding: 6px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-size: 10.5px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule-soft);
+    text-align: right;
+  }
+  .cat-table td:first-child {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--navy);
+    text-align: left;
+  }
+  .cat-table .perf { font-weight: 700; color: var(--hoya); }
+  .cat-table .low  { color: var(--gold); }
+  .cat-table .na   { color: var(--muted); }
+
+  /* ============ DISCUSSION / KEY FINDINGS ============ */
+  .findings-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .finding {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    padding: 12px 14px 12px 12px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--hoya);
+    border-radius: 2px;
+  }
+  .finding .idx {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--hoya);
+    line-height: 1;
+  }
+  .finding h5 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--navy);
+    line-height: 1.22;
+    margin-bottom: 4px;
+  }
+  .finding p { font-size: 13px !important; line-height: 1.4 !important; color: var(--ink-2); }
+  .finding.limit { border-left-color: var(--gold); }
+  .finding.limit .idx { color: var(--gold); }
+
+  /* ============ CONCLUSION / QR ============ */
+  .conclusion {
+    background: var(--navy);
+    color: #e7eef8;
+    padding: 8px 16px;
+    border-radius: 3px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .conclusion h3 {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b7c6e3;
+    margin-bottom: 4px;
+  }
+  .conclusion p {
+    font-family: 'Source Serif 4', serif;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #e7eef8;
+  }
+  .conclusion p + p { margin-top: 5px; }
+  .conclusion p strong { color: #fff; font-weight: 700; }
+  .conclusion .qr-wrap {
+    background: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    text-align: center;
+    width: 86px;
+  }
+  .conclusion .qr-wrap img { width: 76px; height: 76px; display: block; }
+  .conclusion .qr-wrap .cap {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-top: 4px;
+  }
+
+  /* ============ REFERENCES ============ */
+  .refs {
+    background: transparent;
+    border-top: 1px solid var(--rule);
+    padding-top: 6px;
+    margin-top: 4px;
+  }
+  .refs h3 {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 5px;
+  }
+  .refs ol {
+    list-style: none;
+    counter-reset: r;
+    columns: 1;
+    column-gap: 24px;
+  }
+  .refs li {
+    counter-increment: r;
+    font-family: 'Source Serif 4', serif;
+    font-size: 9.5px;
+    line-height: 1.28;
+    color: var(--ink-2);
+    padding-left: 18px;
+    position: relative;
+    break-inside: avoid;
+    margin-bottom: 2px;
+  }
+  .refs li::before {
+    content: "[" counter(r) "]";
+    position: absolute;
+    left: 0; top: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--hoya);
+  }
+  .refs li em { color: var(--navy); font-style: italic; }
+
+  /* ============ FOOTER RULE ============ */
+  .poster-footer {
+    margin: 6px 70px 0;
+    padding-top: 5px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 9.5px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .poster-footer .mark {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--navy);
+    letter-spacing: 0;
+  }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--hoya); vertical-align: middle; margin: 0 6px; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="poster-wrap">
+    <div class="poster" id="poster">
+
+      <!-- ======================= HEADER BANNER ======================= -->
+      <header class="banner">
+        <div class="banner-title">
+          <div class="dept">Georgetown University &middot; DSAN 6725 Final Project</div>
+          <h1>Agentic AI Nutritionist</h1>
+          <div class="sub">
+            A multi-agent meal-planning system that combines persistent user memory with
+            grounded recipe retrieval and a deterministic audit layer.
+          </div>
+        </div>
+        <div class="banner-meta">
+          <div class="venue">Spring 2026 &middot; Poster Session</div>
+          <div class="authors">Tyler Blue &nbsp;<em>and</em>&nbsp; Andrew Moy</div>
+          <div class="affil">M.S. Data Science &amp; Analytics, Georgetown University</div>
+          <div class="date">Published April 24, 2026</div>
+        </div>
+      </header>
+
+      <!-- ======================= BODY GRID ======================= -->
+      <div class="body">
+
+        <!-- ========= LEAD: replaces abstract with a thesis band ========= -->
+        <section class="section c-abstract">
+          <div class="abstract-box">
+            <div class="abs-label">In brief</div>
+            <p style="column-count: 1; font-size: 18px; line-height: 1.35;">
+              A multi-agent system that produces <strong>personalized, nutritionally
+              targeted meal plans</strong> through conversation &mdash; grounded in a
+              751-recipe corpus, with a deterministic audit layer outside the LLM.
+              <br>
+              <em style="color: var(--muted); font-size: 15px; letter-spacing: 0.02em;">Perfect on preliminary safety and structure tests; corpus and latency are the remaining limits.</em>
+            </p>
+          </div>
+        </section>
+
+        <!-- ========= 1. INTRODUCTION / BACKGROUND ========= -->
+        <section class="section c-left">
+          <div class="section-head">
+            <span class="num">1</span>
+            <h2>The Problem</h2>
+            <span class="tag">motivation</span>
+          </div>
+
+          <p style="font-size: 17px; line-height: 1.3;">
+            Manual trackers like MyFitnessPal place the data-entry burden on the user,
+            while purely generative LLMs struggle to produce reliable nutritional values.
+          </p>
+
+          <div class="stat-block">
+            <div class="stat-num">695<span class="u">kcal</span></div>
+            <div class="stat-text">
+              <strong>Five leading LLMs</strong> systematically
+              <em>underestimated</em> daily energy vs. registered-dietitian plans.
+              <span class="src">Bilen et al., 2026 &middot; n = 5 models</span>
+            </div>
+          </div>
+
+          <p style="font-size: 15px; line-height: 1.32;">
+            We explore a middle path: an <strong>agentic architecture</strong> that
+            combines persistent memory with grounded retrieval &mdash; and
+            <strong>isolates safety from LLM inference</strong>.
+          </p>
+
+          <p style="font-size: 11px; color: var(--muted); margin-top: 8px; letter-spacing: 0.02em;">
+            Related work &middot;
+            <span class="inline-cite">Angara 2017</span>,
+            <span class="inline-cite">Abbas 2026</span>,
+            <span class="inline-cite">Guo 2025</span>,
+            <span class="inline-cite">Bilen 2026</span>,
+            <span class="inline-cite">Khamesian 2024</span>,
+            <span class="inline-cite">Papastratis 2024</span>.
+          </p>
+        </section>
+
+        <!-- ========= 2. DATA ========= -->
+        <section class="section c-mid">
+          <div class="section-head">
+            <span class="num">2</span>
+            <h2>The Corpus</h2>
+            <span class="tag">budget bytes &middot; 751</span>
+          </div>
+
+          <p style="font-size: 17px; line-height: 1.3;">
+            Scraped from <strong>Budget Bytes</strong>. Category labels route recipes to
+            the right meal slot.
+          </p>
+
+          <div class="data-stats">
+            <div class="data-stat">
+              <div class="n">751</div>
+              <div class="lab">Recipes</div>
+            </div>
+            <div class="data-stat">
+              <div class="n">$1.22</div>
+              <div class="lab">Median cost / serving</div>
+            </div>
+            <div class="data-stat">
+              <div class="n">35<span class="u">min</span></div>
+              <div class="lab">Median prep + cook</div>
+            </div>
+            <div class="data-stat">
+              <div class="n">213<span class="u">kcal</span></div>
+              <div class="lab">Mean kcal / serving</div>
+            </div>
+          </div>
+
+          <div class="caveat">
+            <span class="tag">Caveat</span>
+            Nutrition values were <em>LLM-estimated</em> &mdash; not USDA. Production
+            would replace with a lab-validated dataset.
+          </div>
+        </section>
+
+        <!-- ========= 3. MODELS & TECHNOLOGIES ========= -->
+        <section class="section c-right">
+          <div class="section-head">
+            <span class="num">3</span>
+            <h2>The Stack</h2>
+            <span class="tag">why these</span>
+          </div>
+
+          <div class="stack-grid">
+            <div class="stack-card">
+              <div class="tool">claude-sonnet-4.6</div>
+              <div class="role">Orchestrator + Intake</div>
+            </div>
+            <div class="stack-card">
+              <div class="tool">claude-haiku-4.5</div>
+              <div class="role">Planner &middot; structured</div>
+            </div>
+            <div class="stack-card">
+              <div class="tool">strands-agent-sdk</div>
+              <div class="role">Agent framework</div>
+            </div>
+            <div class="stack-card">
+              <div class="tool">mem0</div>
+              <div class="role">Persistent memory</div>
+            </div>
+            <div class="stack-card">
+              <div class="tool">sqlite</div>
+              <div class="role">Personal cookbook</div>
+            </div>
+            <div class="stack-card">
+              <div class="tool">streamlit</div>
+              <div class="role">Frontend</div>
+            </div>
+          </div>
+
+          <p style="font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.32;">
+            Chosen to keep the <em>what the model is doing</em> legible &mdash; Strands
+            over LangChain, SQLite over vector-store.
+          </p>
+        </section>
+
+        <!-- ========= 4. SYSTEM ARCHITECTURE (full-width) ========= -->
+        <section class="section c-full">
+          <div class="section-head">
+            <span class="num">4</span>
+            <h2>System Architecture</h2>
+            <span class="tag">figure 1</span>
+          </div>
+
+          <div class="arch-card">
+            <svg class="arch-svg" viewBox="0 0 2100 240" style="min-height: 380px;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <marker id="a-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#14181F"/></marker>
+                <marker id="a-hoya" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#003ca6"/></marker>
+                <marker id="a-nav" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#002c62"/></marker>
+              </defs>
+
+              <!-- USER -->
+              <g>
+                <rect x="20" y="92" width="130" height="56" rx="28" fill="#fff" stroke="#14181F" stroke-width="1.5"/>
+                <text x="85" y="118" text-anchor="middle" fill="#14181F" font-family="Source Serif 4, serif" font-size="17" font-weight="600">User</text>
+                <text x="85" y="136" text-anchor="middle" fill="#63656b" font-family="JetBrains Mono, monospace" font-size="9">streamlit chat</text>
+              </g>
+
+              <!-- User <-> Orchestrator -->
+              <line x1="150" y1="110" x2="265" y2="110" stroke="#14181F" stroke-width="1.5" marker-end="url(#a-ink)"/>
+              <text x="207" y="104" text-anchor="middle" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="10">message</text>
+              <line x1="265" y1="130" x2="150" y2="130" stroke="#14181F" stroke-width="1.5" marker-end="url(#a-ink)"/>
+              <text x="207" y="144" text-anchor="middle" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="10">response</text>
+
+              <!-- ORCHESTRATOR -->
+              <g>
+                <rect x="265" y="80" width="240" height="80" rx="4" fill="#003ca6"/>
+                <rect x="265" y="80" width="240" height="18" fill="#002c62"/>
+                <text x="275" y="93" fill="#b7c6e3" font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" letter-spacing="2">ORCHESTRATOR AGENT</text>
+                <text x="275" y="120" fill="#fff" font-family="Source Serif 4, serif" font-size="18" font-weight="600">Intent routing &amp; coordination</text>
+                <text x="275" y="148" fill="#cfdcf3" font-family="JetBrains Mono, monospace" font-size="10">claude-sonnet-4.6</text>
+              </g>
+
+              <!-- Orch -> Intake -->
+              <line x1="505" y1="100" x2="640" y2="50" stroke="#14181F" stroke-width="1.5" marker-end="url(#a-ink)"/>
+              <text x="560" y="65" text-anchor="middle" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="10" transform="rotate(-18 560 65)">profile intent</text>
+
+              <!-- Orch -> Planner -->
+              <line x1="505" y1="140" x2="640" y2="190" stroke="#14181F" stroke-width="1.5" marker-end="url(#a-ink)"/>
+              <text x="560" y="180" text-anchor="middle" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="10" transform="rotate(18 560 180)">plan request</text>
+
+              <!-- INTAKE AGENT -->
+              <g>
+                <rect x="640" y="18" width="260" height="64" rx="4" fill="#fff" stroke="#004990" stroke-width="2"/>
+                <rect x="640" y="18" width="260" height="3" fill="#004990"/>
+                <text x="650" y="38" fill="#004990" font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" letter-spacing="2">INTAKE AGENT</text>
+                <text x="650" y="58" fill="#14181F" font-family="Source Serif 4, serif" font-size="15" font-weight="600">Profile collection &amp; updates</text>
+                <text x="650" y="75" fill="#63656b" font-family="JetBrains Mono, monospace" font-size="10">claude-sonnet-4.6</text>
+              </g>
+
+              <!-- PLANNING AGENT -->
+              <g>
+                <rect x="640" y="160" width="260" height="64" rx="4" fill="#fff" stroke="#002c62" stroke-width="2"/>
+                <rect x="640" y="160" width="260" height="3" fill="#002c62"/>
+                <text x="650" y="180" fill="#002c62" font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" letter-spacing="2">PLANNING AGENT</text>
+                <text x="650" y="200" fill="#14181F" font-family="Source Serif 4, serif" font-size="15" font-weight="600">Meal plan generation</text>
+                <text x="650" y="217" fill="#63656b" font-family="JetBrains Mono, monospace" font-size="10">claude-haiku-4.5</text>
+              </g>
+
+              <!-- Data stores column -->
+              <g>
+                <ellipse cx="1200" cy="50" rx="90" ry="28" fill="#fff" stroke="#004990" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <text x="1200" y="48" text-anchor="middle" fill="#14181F" font-family="Source Serif 4, serif" font-size="14" font-weight="600">Mem0</text>
+                <text x="1200" y="64" text-anchor="middle" fill="#63656b" font-family="JetBrains Mono, monospace" font-size="9">user profile · cloud</text>
+              </g>
+              <g>
+                <ellipse cx="1200" cy="120" rx="90" ry="28" fill="#fff" stroke="#004990" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <text x="1200" y="118" text-anchor="middle" fill="#14181F" font-family="Source Serif 4, serif" font-size="14" font-weight="600">Recipe corpus</text>
+                <text x="1200" y="134" text-anchor="middle" fill="#63656b" font-family="JetBrains Mono, monospace" font-size="9">751 recipes</text>
+              </g>
+              <g>
+                <ellipse cx="1200" cy="190" rx="90" ry="28" fill="#fff" stroke="#004990" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <text x="1200" y="188" text-anchor="middle" fill="#14181F" font-family="Source Serif 4, serif" font-size="14" font-weight="600">SQLite cookbook</text>
+                <text x="1200" y="204" text-anchor="middle" fill="#63656b" font-family="JetBrains Mono, monospace" font-size="9">relational · local</text>
+              </g>
+
+              <!-- Intake <-> Mem0 -->
+              <line x1="900" y1="50" x2="1110" y2="50" stroke="#14181F" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <text x="960" y="42" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="9">read / write</text>
+
+              <!-- Planner -> Recipe -->
+              <line x1="900" y1="185" x2="1110" y2="130" stroke="#14181F" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#a-ink)"/>
+              <text x="960" y="150" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="9">query</text>
+
+              <!-- Planner -> SQLite -->
+              <line x1="900" y1="205" x2="1110" y2="195" stroke="#14181F" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#a-ink)"/>
+              <text x="960" y="220" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="9">read custom</text>
+
+              <!-- Orch -> SQLite handled via Planner; omitted to reduce clutter -->
+
+              <!-- AUDIT LAYER -->
+              <g>
+                <rect x="1580" y="85" width="320" height="92" rx="4" fill="#002c62"/>
+                <text x="1590" y="105" fill="#b7c6e3" font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" letter-spacing="2">AUDIT LAYER · NO LLM</text>
+                <text x="1590" y="132" fill="#fff" font-family="Source Serif 4, serif" font-size="18" font-weight="600">Deterministic validation</text>
+                <text x="1590" y="158" fill="#cfdcf3" font-family="JetBrains Mono, monospace" font-size="10">slots · dupes · allergens</text>
+              </g>
+
+              <!-- Planner -> Audit -->
+              <line x1="1290" y1="195" x2="1580" y2="150" stroke="#14181F" stroke-width="1.5" marker-end="url(#a-ink)"/>
+              <text x="1400" y="185" fill="#14181F" font-family="JetBrains Mono, monospace" font-size="10">plan</text>
+
+              <!-- Audit -> user (pass) -->
+              <path d="M 1900 115 L 1960 115 L 1960 100 L 150 100" fill="none" stroke="#003ca6" stroke-width="1.5" marker-end="url(#a-hoya)" opacity="0.45"/>
+              <text x="1920" y="110" fill="#003ca6" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">pass</text>
+
+              <!-- Audit -> Planner (retry) -->
+              <path d="M 1740 177 Q 1740 225 1440 225 Q 1140 225 900 225" fill="none" stroke="#002c62" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#a-nav)"/>
+              <text x="1440" y="240" fill="#002c62" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">fail · retry · up to 2×</text>
+            </svg>
+
+            <div class="fig-caption">
+              <b>Figure 1.</b> The <b>Orchestrator</b> (Sonnet 4.6) routes intent to an <b>Intake Agent</b> (Sonnet 4.6, reads/writes Mem0) or the <b>Planning Agent</b> (Haiku 4.5, queries the recipe corpus + SQLite cookbook). The <b>Audit Layer</b> (no LLM) validates every plan for allergens, duplicates, and required slots — looping the Planner up to two times before falling back.
+            </div>
+          </div>
+        </section>
+
+        <!-- ========= 5. PLAN-AUDIT LOOP (col 1-6) ========= -->
+        <section class="section c-6-l">
+          <div class="section-head">
+            <span class="num">5</span>
+            <h2>The Safety Loop</h2>
+            <span class="tag">no LLM in the validator</span>
+          </div>
+
+          <div class="flow">
+            <div class="flow-step">
+              <div class="n">01</div>
+              <h5>Request</h5>
+              <div class="m">orchestrator</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="n">02</div>
+              <h5>Compute targets</h5>
+              <div class="m">mifflin&ndash;st jeor</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="n">03</div>
+              <h5>Query corpus</h5>
+              <div class="m">filter &middot; score</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="n">04</div>
+              <h5>Assemble</h5>
+              <div class="m">1 or N days</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step decision">
+              <div>
+                <h5>Audit?</h5>
+                <div class="m">slots &middot; allergens</div>
+              </div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step pass">
+              <div class="n">✓ PASS</div>
+              <h5>Present</h5>
+              <div class="m">to user</div>
+            </div>
+          </div>
+
+          <div class="retry-row">
+            <div class="retry-card">
+              <div class="tg">Retry &middot; 1</div>
+              <h5>Widen time</h5>
+            </div>
+            <div class="retry-card">
+              <div class="tg">Retry &middot; 2</div>
+              <h5>Widen ingredient count</h5>
+            </div>
+            <div class="retry-card fallback">
+              <div class="tg">Fallback</div>
+              <h5>Best plan + notes</h5>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========= 6. EVALUATION SETUP (col 7-12) ========= -->
+        <section class="section c-6-r">
+          <div class="section-head">
+            <span class="num">6</span>
+            <h2>How We Tested</h2>
+            <span class="tag">braintrust &middot; no LLM judge</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 4px;">
+            <div>
+              <div class="chart-title">29 cases &middot; 5 categories</div>
+              <table class="cat-table" style="font-size: 13px;">
+                <tr><td>Meal Planning</td><td>12</td></tr>
+                <tr><td>Dietary Restriction</td><td>6</td></tr>
+                <tr><td>Profile Update</td><td>4</td></tr>
+                <tr><td>Out of Scope</td><td>4</td></tr>
+                <tr><td>Shopping List</td><td>3</td></tr>
+                <tr style="border-top: 2px solid var(--navy);"><td style="font-weight:700;">Total</td><td style="font-weight:700; color: var(--hoya);">29</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="chart-title">8 deterministic scorers</div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--ink); line-height: 1.2;">
+                <span>ToolSelection</span>
+                <span>Latency</span>
+                <span>NoError</span>
+                <span>ScopeAwareness</span>
+                <span>PlanCompleteness</span>
+                <span>CalorieTarget</span>
+                <span>AllergenSafety</span>
+                <span>ShoppingList</span>
+              </div>
+              <p style="font-size: 12px; margin-top: 12px; color: var(--muted); line-height: 1.35;">
+                Binary or banded numeric. CalorieTarget band: &plusmn;15% of
+                Mifflin&ndash;St Jeor.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========= 7. RESULTS (col 1-7) ========= -->
+        <section class="section" style="grid-column: 1 / span 7;">
+          <div class="section-head">
+            <span class="num">7</span>
+            <h2>Results</h2>
+            <span class="tag">figure 2 · table 1</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1.05fr; gap: 18px;">
+            <div>
+              <div class="chart-title">Fig. 2 &middot; Avg. score by scorer</div>
+              <div class="bars">
+                <div class="bar-row"><span class="lbl">NoError</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">1.000</span><span class="n">29</span></div>
+                <div class="bar-row"><span class="lbl">AllergenSafety</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">1.000</span><span class="n">5</span></div>
+                <div class="bar-row"><span class="lbl">ShoppingList</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">1.000</span><span class="n">3</span></div>
+                <div class="bar-row"><span class="lbl">PlanComplete</span><span class="track"><span class="fill" style="width:98.4%"></span></span><span class="val">0.984</span><span class="n">21</span></div>
+                <div class="bar-row"><span class="lbl">ToolSelection</span><span class="track"><span class="fill" style="width:97.6%"></span></span><span class="val">0.976</span><span class="n">25</span></div>
+                <div class="bar-row ok"><span class="lbl">ScopeAware</span><span class="track"><span class="fill" style="width:93.1%"></span></span><span class="val">0.931</span><span class="n">29</span></div>
+                <div class="bar-row weak"><span class="lbl">CalorieTarget</span><span class="track"><span class="fill" style="width:47.6%"></span></span><span class="val">0.476</span><span class="n">18</span></div>
+                <div class="bar-row weak"><span class="lbl">Latency</span><span class="track"><span class="fill" style="width:42.2%"></span></span><span class="val">0.422</span><span class="n">29</span></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="chart-title">Table 1 &middot; Per-category <span style="color: var(--muted); font-weight: 500; letter-spacing: 0.05em;">(App. B)</span></div>
+              <table class="cat-table">
+                <thead>
+                  <tr>
+                    <th>Category</th><th>Tool</th><th>Plan</th><th>Cal</th><th>Allg</th><th>Scope</th><th>Lat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Meal Planning</td><td>0.983</td><td>0.986</td><td class="low">0.518</td><td class="na">—</td><td class="perf">1.000</td><td class="low">0.208</td></tr>
+                  <tr><td>Dietary Restr.</td><td>0.933</td><td>0.972</td><td class="low">0.392</td><td class="perf">1.000</td><td class="perf">1.000</td><td>0.417</td></tr>
+                  <tr><td>Shopping List</td><td class="perf">1.000</td><td class="perf">1.000</td><td class="na">—</td><td class="na">—</td><td class="perf">1.000</td><td class="low">0.167</td></tr>
+                  <tr><td>Profile Update</td><td class="perf">1.000</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="perf">1.000</td><td>0.750</td></tr>
+                  <tr><td>Out of Scope</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="low">0.500</td><td>0.938</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="fig-caption" style="margin-top: 4px;">
+            <b>Fig. 2 &amp; Table 1.</b> Safety-critical and structural scorers are saturated.
+            CalorieTarget (corpus-bound) and Latency (sequential inference) are unpacked in §8.
+            <em>Bar n = applicable cases; table bodies dashed where scorer does not apply.</em>
+          </div>
+        </section>
+
+        <!-- ========= 8. FINDINGS & DISCUSSION (col 8-12) ========= -->
+        <section class="section" style="grid-column: 8 / span 5;">
+          <div class="section-head">
+            <span class="num">8</span>
+            <h2>What It Means</h2>
+            <span class="tag">findings</span>
+          </div>
+
+          <div class="findings-list" style="grid-template-columns: 1fr; gap: 12px;">
+            <div class="finding">
+              <div class="idx">01</div>
+              <div>
+                <h5>Grounding eliminates hallucination &mdash; by construction.</h5>
+                <p>The system can&rsquo;t invent meals. The audit is string-matching.</p>
+              </div>
+            </div>
+
+            <div class="finding">
+              <div class="idx">02</div>
+              <div>
+                <h5>Separated agents made debugging tractable.</h5>
+                <p>Narrow prompts, predictable routing, isolated failures.</p>
+              </div>
+            </div>
+
+            <div class="finding limit">
+              <div class="idx">03</div>
+              <div>
+                <h5>CalorieTarget (0.476) is a <em>corpus</em> problem.</h5>
+                <p>Budget Bytes skews light (213 kcal/srv). USDA corpus closes most of the gap.</p>
+              </div>
+            </div>
+
+            <div class="finding limit">
+              <div class="idx">04</div>
+              <div>
+                <h5>Latency (0.422) is an <em>infra</em> problem.</h5>
+                <p>2&ndash;3 sequential API calls per turn. Parallelize + cache to fix.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========= 9. CONCLUSION + QR (full width) ========= -->
+        <aside class="section c-full">
+          <div class="section-head">
+            <span class="num">9</span>
+            <h2>Conclusion</h2>
+            <span class="tag">&amp; references</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: stretch;">
+            <div class="conclusion">
+              <div>
+                <h3>Takeaway</h3>
+                <p style="font-size: 17px; line-height: 1.32;">
+                  Separating conversation, retrieval, and validation across specialized
+                  agents allowed the system to stay conversational while keeping
+                  nutritional accuracy and dietary constraints reliable.
+                </p>
+                <p style="font-size: 11px; color: #b7c6e3; margin-top: 6px;">
+                  <strong style="color: #fff;">Next:</strong> USDA corpus &middot; auth &middot;
+                  grocery-MCP &middot; temporal profile.
+                </p>
+              </div>
+              <div class="qr-wrap">
+                <img src="assets/qrcode.png" alt="QR code · repository and demo">
+                <div class="cap">Repo &middot; Demo</div>
+              </div>
+            </div>
+
+            <div class="refs" style="border-top: none; padding-top: 0; margin-top: 0;">
+              <h3>References</h3>
+              <ol>
+                <li>Abbas, A. <em>et al.</em> (2026). &ldquo;Having lunch now&rdquo;: Engagement with a proactive daily-planning agent. <em>CHI 2026</em>.</li>
+                <li>Angara, P. <em>et al.</em> (2017). Foodie Fooderson: A conversational agent for the smart kitchen. <em>CASCON 2017</em>.</li>
+                <li>Bilen, A. B. <em>et al.</em> (2026). AI diet plans underestimate nutrient intake vs. dietitians. <em>Frontiers in Nutrition</em>, 13, 1765598.</li>
+                <li>Guo, P. <em>et al.</em> (2025). Systematic review of ChatGPT dietary recommendations. <em>Dietetics</em>, 4(1), 7.</li>
+                <li>Khamesian, S. <em>et al.</em> (2024). NutriGen: Personalized meal-plan generator leveraging LLMs. <em>arXiv</em>.</li>
+                <li>Papastratis, I. <em>et al.</em> (2024). AI nutrition recommendation using a generative model and ChatGPT. <em>Sci. Reports</em>, 14, 14620.</li>
+              </ol>
+              <p style="font-family: 'Source Serif 4', serif; font-style: italic; font-size: 10.5px; line-height: 1.32; color: var(--muted); margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--rule);">
+                <strong style="color: var(--navy); font-style: normal;">Colophon.</strong>
+                Poster design iterated with <em>Claude</em> (Anthropic) via its design-tool
+                workspace &mdash; layout, typography, and SVG figures were generated
+                through conversation with the model. All authorial decisions, research,
+                data, and system implementation are the authors&rsquo; own.
+              </p>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- ======================= FOOTER ======================= -->
+      <div class="poster-footer">
+        <div>DSAN 6725 &middot; Spring 2026 &middot; Final Project Poster &middot; 48&Prime; &times; 36&Prime;</div>
+        <div class="mark">Agentic AI Nutritionist <span class="dot"></span> Blue &middot; Moy &middot; 2026</div>
+        <div>For a 3-minute verbal walkthrough &middot; Georgetown University</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const poster = document.getElementById('poster');
+    function fit(){
+      const stage = poster.parentElement;
+      const s = Math.min(stage.clientWidth / 2400, stage.clientHeight / 1800);
+      poster.style.transform = 'scale(' + s + ')';
+    }
+    new ResizeObserver(fit).observe(poster.parentElement);
+    window.addEventListener('resize', fit);
+    // Strip the scale before printing so @page + 48in dimensions take over cleanly.
+    window.addEventListener('beforeprint', () => { poster.style.transform = 'none'; });
+    window.addEventListener('afterprint', fit);
+    fit();
+  })();
+</script>
+
+</body>
+</html>
