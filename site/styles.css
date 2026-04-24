@@ -1,0 +1,169 @@
+/* Sage landing page — simple, warm, text-forward */
+
+:root {
+  --sage-terracotta: #C7572C;
+  --sage-olive: #2A321C;
+  --sage-cream: #F5EEE0;
+  --sage-muted: #7A6F5C;
+  --sage-ink: #1F1E1B;
+}
+
+body {
+  background: var(--sage-cream);
+  color: var(--sage-ink);
+  font-family: "Source Sans 3", system-ui, -apple-system, sans-serif;
+}
+
+.quarto-title-block {
+  margin-bottom: 2rem;
+}
+
+.quarto-title-block .title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 4.5rem;
+  font-weight: 400;
+  color: var(--sage-terracotta);
+  letter-spacing: -0.02em;
+  margin-bottom: 0;
+}
+
+.quarto-title-block .subtitle {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--sage-olive);
+  margin-top: 0.25rem;
+}
+
+h2 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--sage-olive);
+  border-bottom: 1px solid rgba(42, 50, 28, 0.15);
+  padding-bottom: 0.4rem;
+  margin-top: 2.5rem;
+}
+
+h3 {
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--sage-olive);
+  margin-bottom: 0.5rem;
+}
+
+.lead {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.35rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--sage-olive);
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--sage-terracotta);
+  margin: 1.5rem 0 2rem;
+  background: rgba(199, 87, 44, 0.04);
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--sage-ink);
+}
+
+a {
+  color: var(--sage-terracotta);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* Deliverables grid */
+.deliverables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.deliverable {
+  background: #fff;
+  border: 1px solid rgba(42, 50, 28, 0.12);
+  border-radius: 10px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.deliverable h3 {
+  margin-top: 0;
+  color: var(--sage-terracotta);
+}
+
+.deliverable p {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--sage-muted);
+  margin-bottom: 1rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--sage-olive);
+  color: var(--sage-cream) !important;
+  border: 1px solid var(--sage-olive);
+}
+.btn-primary:hover {
+  background: #1a2010;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--sage-muted) !important;
+  border: 1px dashed var(--sage-muted);
+}
+.btn-secondary:hover {
+  background: rgba(122, 111, 92, 0.08);
+  text-decoration: none;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+th, td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(42, 50, 28, 0.12);
+}
+th {
+  background: rgba(42, 50, 28, 0.04);
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(42, 50, 28, 0.15);
+  margin: 2rem 0;
+}
+
+/* Constrain reading width */
+main.content {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}

@@ -1,0 +1,25 @@
+project:
+  type: website
+  output-dir: ../docs
+  pre-render:
+    - cp ../deliverables/paper/final_paper.pdf ./final_paper.pdf
+    - cp ../deliverables/poster/poster.pdf ./poster.pdf
+    - cp ../deliverables/slides/slide_deck_print.pdf ./slide_deck_print.pdf
+  resources:
+    - "final_paper.pdf"
+    - "poster.pdf"
+    - "slide_deck_print.pdf"
+
+website:
+  title: "Sage · Agentic AI Nutritionist"
+  description: "A multi-agent meal-planning system that combines persistent user memory with grounded recipe retrieval."
+  site-url: "https://gu-dsan6725.github.io/spring-2026-final-project-team_07/"
+  repo-url: "https://github.com/gu-dsan6725/spring-2026-final-project-team_07"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: false
+    page-layout: full
+    embed-resources: false
