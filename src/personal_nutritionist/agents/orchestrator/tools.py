@@ -30,6 +30,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Side-channel so the Streamlit layer can read the last successful plan result.
+# Set by build_meal_plan on every successful call; cleared by the app after reading.
+last_plan_result: dict | None = None
+
 _PROFILE_DEFAULTS = {
     "goal": "maintenance",
     "activity_level": "moderate",
@@ -165,22 +169,29 @@ def build_meal_plan(
         logger.warning("build_meal_plan: planning agent raised unexpected error: %s", e)
         return {"error": f"Planning failed: {e}"}
 
-    # Extract the structured plan from <plan_json> tags
+    # Extract the structured plan — prefer <plan_json> tags, fall back to side-channel.
     plan_json_str = _extract_tag(response, "plan_json")
-    if not plan_json_str:
-        logger.warning("build_meal_plan: no <plan_json> tag found in planning agent response")
-        return {
-            "error": "Planning agent did not return a structured plan.",
-            "planning_response": response,
-        }
-
-    plan_data = _enrich_plan(json.loads(plan_json_str))
+    if plan_json_str:
+        plan_data = _enrich_plan(json.loads(plan_json_str))
+    else:
+        import personal_nutritionist.agents.planning.tools as _planning_tools
+        if _planning_tools.last_plan_data is not None:
+            logger.info("build_meal_plan: <plan_json> tag missing — using side-channel plan data")
+            raw = _planning_tools.last_plan_data
+            plan_data = _enrich_plan(raw[0] if len(raw) == 1 and plan_type == "day" else raw)
+            _planning_tools.last_plan_data = None
+        else:
+            logger.warning("build_meal_plan: no <plan_json> tag and no side-channel data")
+            return {
+                "error": "Planning agent did not return a structured plan.",
+                "planning_response": response,
+            }
 
     logger.info(
         "build_meal_plan user=%s type=%s include_snack=%s overrides=%s",
         user_id, plan_type, include_snack, override_filters,
     )
-    return {
+    result = {
         "plan": plan_data,
         "plan_type": plan_type,
         "n_days": n_days,
@@ -191,6 +202,9 @@ def build_meal_plan(
         },
         "planning_response": response,
     }
+    global last_plan_result
+    last_plan_result = result
+    return result
 
 
 _NUTRITION_ESTIMATE_PROMPT = """

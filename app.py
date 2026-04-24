@@ -5,13 +5,147 @@ load_dotenv()
 
 st.set_page_config(page_title="Personal Nutritionist", page_icon="🥗", layout="wide")
 
+st.markdown("""
+<style>
+/* ── Global typography ─────────────────────────────────────────── */
+html, body, [class*="css"] { font-family: "Inter", "Segoe UI", sans-serif; }
+
+/* ── Header bar ────────────────────────────────────────────────── */
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 0 10px 0;
+    border-bottom: 2px solid #C8E6C9;
+    margin-bottom: 20px;
+}
+.app-header .icon { font-size: 2rem; line-height: 1; }
+.app-header h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #1B5E20;
+    letter-spacing: -0.3px;
+}
+.app-header .subtitle {
+    font-size: 0.82rem;
+    color: #558B2F;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────── */
+section[data-testid="stSidebar"] {
+    background: #EFF3EE;
+    border-right: 1px solid #C8E6C9;
+}
+section[data-testid="stSidebar"] .stMetric { background: transparent; }
+
+/* ── Recipe cards in sidebar ───────────────────────────────────── */
+section[data-testid="stSidebar"] div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #FFFFFF;
+    border: 1px solid #C8E6C9 !important;
+    border-radius: 10px !important;
+    padding: 6px 8px !important;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+/* ── Main panel cards / expanders ─────────────────────────────── */
+div[data-testid="stExpander"] {
+    border: 1px solid #C8E6C9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+div[data-testid="stExpander"] summary {
+    background: #F1F8F0;
+    font-weight: 600;
+    padding: 10px 14px;
+}
+
+/* ── Chat bubbles ──────────────────────────────────────────────── */
+div[data-testid="stChatMessage"] {
+    border-radius: 12px;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+}
+
+/* ── Metric labels ─────────────────────────────────────────────── */
+div[data-testid="stMetric"] label { font-size: 0.72rem !important; color: #558B2F; }
+div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+    font-size: 1.05rem !important;
+    font-weight: 700;
+    color: #1B5E20;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+div.stButton > button[kind="primary"] {
+    background: #2E7D32;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+div.stButton > button[kind="primary"]:hover { background: #1B5E20; }
+div.stButton > button:not([kind="primary"]) {
+    border-radius: 8px;
+    border: 1px solid #A5D6A7;
+    color: #2E7D32;
+    background: transparent;
+}
+div.stButton > button:not([kind="primary"]):hover {
+    background: #E8F5E9;
+    border-color: #2E7D32;
+}
+
+/* ── Download button ───────────────────────────────────────────── */
+div.stDownloadButton > button {
+    border-radius: 8px;
+    border: 1px solid #A5D6A7;
+    color: #2E7D32;
+    background: transparent;
+    font-weight: 500;
+}
+div.stDownloadButton > button:hover { background: #E8F5E9; }
+
+/* ── Divider ───────────────────────────────────────────────────── */
+hr { border-color: #C8E6C9; }
+
+/* ── Tab strip ─────────────────────────────────────────────────── */
+div[data-testid="stTabs"] button[role="tab"] {
+    font-weight: 500;
+    color: #558B2F;
+}
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    color: #1B5E20;
+    border-bottom-color: #2E7D32 !important;
+}
+
+/* ── Text inputs / selects ─────────────────────────────────────── */
+div[data-testid="stTextInput"] input,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+    border-radius: 8px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ── Header ─────────────────────────────────────────────────────────────────────
-col_title, col_user = st.columns([4, 1])
-with col_title:
-    st.title("Personal Nutritionist")
+st.markdown("""
+<div class="app-header">
+  <span class="icon">🥗</span>
+  <div>
+    <h1>Personal Nutritionist</h1>
+    <p class="subtitle">AI-powered meal planning tailored to you</p>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+col_user, _ = st.columns([1, 3])
 with col_user:
-    user_id = st.text_input("User ID", placeholder="e.g. andrew", label_visibility="collapsed")
-    st.caption("User ID")
+    user_id = st.text_input("User ID", placeholder="e.g. andrew", label_visibility="visible")
 
 if not user_id:
     st.info("Enter a User ID above to get started.")
@@ -50,10 +184,14 @@ with st.sidebar:
     page = st.number_input("Page", min_value=1, max_value=total_pages, value=1, step=1)
     page_df = filtered.iloc[(page - 1) * PAGE_SIZE : page * PAGE_SIZE]
 
+    _SB_CAT_LABELS = {
+        "main_dish": "Main Dish", "breakfast": "Breakfast", "side_dish": "Side Dish",
+        "snack": "Snack", "dessert": "Dessert", "drink": "Drink",
+    }
     for _, row in page_df.iterrows():
         with st.container(border=True):
             st.markdown(f"**{row['title']}**")
-            st.caption(f"{row['category']}")
+            st.caption(_SB_CAT_LABELS.get(row['category'], row['category']))
             c1, c2, c3 = st.columns(3)
             c1.metric("kcal", f"{row['calories']:.0f}")
             c2.metric("protein", f"{row['protein']:.0f}g")
@@ -139,6 +277,14 @@ with left:
                     response = str(st.session_state.agent(prompt))
                 st.write(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
+
+            # If the agent built a meal plan, capture it for the right panel.
+            import personal_nutritionist.agents.orchestrator.tools as _orch_tools
+            if _orch_tools.last_plan_result and "plan" in _orch_tools.last_plan_result:
+                raw = _orch_tools.last_plan_result["plan"]
+                st.session_state.week_plan = raw if isinstance(raw, list) else [raw]
+                _orch_tools.last_plan_result = None
+                st.rerun()
 
     with tab_profile:
         if st.button("Refresh Profile"):
@@ -276,6 +422,18 @@ with left:
 
         from personal_nutritionist.core.database import edit_custom_recipe as _edit_recipe
 
+        _CATEGORY_OPTIONS = [
+            "main_dish", "breakfast", "side_dish", "snack", "dessert", "drink",
+        ]
+        _CATEGORY_LABELS = {
+            "main_dish": "Main Dish",
+            "breakfast": "Breakfast",
+            "side_dish": "Side Dish",
+            "snack": "Snack",
+            "dessert": "Dessert",
+            "drink": "Drink",
+        }
+
         for title in active_filtered:
             is_custom = title in custom
             tag = " [custom]" if is_custom else ""
@@ -296,7 +454,14 @@ with left:
                     with st.form(key=f"edit_{title}"):
                         new_title = st.text_input("Title", value=r.get("title", title))
                         c1, c2 = st.columns(2)
-                        new_cat      = c1.text_input("Category",          value=str(r.get("category", "")))
+                        _cur_cat = str(r.get("category", "main_dish"))
+                        _cat_idx = _CATEGORY_OPTIONS.index(_cur_cat) if _cur_cat in _CATEGORY_OPTIONS else 0
+                        new_cat = c1.selectbox(
+                            "Category",
+                            options=_CATEGORY_OPTIONS,
+                            index=_cat_idx,
+                            format_func=lambda x: _CATEGORY_LABELS[x],
+                        )
                         new_servings = c2.number_input("Servings",         value=float(r.get("servings", 4)),   min_value=0.0)
                         new_cal      = c1.number_input("Calories",         value=float(r.get("calories", 0)),   min_value=0.0)
                         new_prot     = c2.number_input("Protein (g)",      value=float(r.get("protein", 0)),    min_value=0.0)
@@ -343,7 +508,8 @@ with left:
                 else:
                     # Base recipe — read-only display
                     c1, c2 = st.columns(2)
-                    c1.markdown(f"**Category:** {r.get('category', '—')}")
+                    _cat_raw = r.get("category", "")
+                    c1.markdown(f"**Category:** {_CATEGORY_LABELS.get(_cat_raw, _cat_raw) or '—'}")
                     c2.markdown(f"**Servings:** {r.get('servings', '—')}")
                     c1.markdown(f"**Calories:** {r.get('calories', 0):.0f}")
                     c2.markdown(f"**Protein:** {r.get('protein', 0):.1f}g")
@@ -394,8 +560,25 @@ with right:
         st.info("Generate a plan, or ask the chatbot to build one.")
     else:
         from personal_nutritionist.agents.planning.tools import search_meals_tool
+        from personal_nutritionist.agents.orchestrator.tools import generate_shopping_list
+        import csv, io
 
         plan: list[dict] = st.session_state.week_plan
+
+        shopping = generate_shopping_list({"plan": plan})
+        if "items" in shopping:
+            buf = io.StringIO()
+            writer = csv.writer(buf)
+            writer.writerow(["Ingredient", "Quantity"])
+            for item in shopping["items"]:
+                writer.writerow([item["ingredient"], item["quantity"] or ""])
+            st.download_button(
+                "Download Shopping List (CSV)",
+                data=buf.getvalue(),
+                file_name="shopping_list.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
 
         for i, day in enumerate(plan):
             t = day["totals"]

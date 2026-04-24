@@ -14,11 +14,14 @@ from personal_nutritionist.core.nutrition import (
 
 # Configure logging with basicConfig
 logging.basicConfig(
-    level=logging.INFO,  # Set the log level to INFO
-    # Define log message format
+    level=logging.INFO,
     format="%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Side-channel: the orchestrator reads this after build_day/week_plan_tool runs
+# so it doesn't have to rely on the LLM serializing <plan_json> tags correctly.
+last_plan_data: list[dict] | None = None
 
 @tool
 def get_user_profile(user_id: str) -> dict:
@@ -124,7 +127,7 @@ def build_week_plan_tool(
     )
     logger.info("build_week_plan n_days=%s include_snack=%s include_side=%s", n_days, include_snack, include_side)
     _SLIM = {"steps", "ingredient_details"}
-    return [
+    result = [
         {
             "breakfast": p.breakfast.model_dump(exclude=_SLIM),
             "lunch": p.lunch.model_dump(exclude=_SLIM),
@@ -140,6 +143,9 @@ def build_week_plan_tool(
         }
         for p in plans
     ]
+    global last_plan_data
+    last_plan_data = result
+    return result
 
 
 @tool
@@ -184,7 +190,7 @@ def build_day_plan_tool(
         plan.total_cost,
     )
     _SLIM = {"steps", "ingredient_details"}
-    return {
+    result = {
         "breakfast": plan.breakfast.model_dump(exclude=_SLIM),
         "lunch": plan.lunch.model_dump(exclude=_SLIM),
         "lunch_side": plan.lunch_side.model_dump(exclude=_SLIM) if plan.lunch_side else None,
@@ -197,3 +203,6 @@ def build_day_plan_tool(
             "cost": plan.total_cost,
         },
     }
+    global last_plan_data
+    last_plan_data = [result]
+    return result

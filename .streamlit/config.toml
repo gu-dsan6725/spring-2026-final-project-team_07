@@ -1,0 +1,10 @@
+[theme]
+base = "light"
+primaryColor         = "#2E7D32"   # forest green — buttons, links, focus rings
+backgroundColor      = "#F9FAF8"   # off-white page background
+secondaryBackgroundColor = "#EFF3EE"  # sidebar + cards
+textColor            = "#1A1A1A"
+font                 = "sans serif"
+
+[server]
+headless = true
