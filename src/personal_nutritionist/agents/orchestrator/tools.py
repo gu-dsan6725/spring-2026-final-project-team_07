@@ -147,6 +147,27 @@ def build_meal_plan(
     protein_target = estimate_protein_target(profile)
     daily_budget = (profile.max_cost_per_serving or 999.0) * profile.meals_per_day
 
+    # Validate slot coverage before delegating — a custom-only cookbook with no
+    # breakfast / main_dish recipes would otherwise raise deep inside the
+    # planning agent and surface as an opaque "no structured plan" error.
+    from personal_nutritionist.core.dependencies import get_recipe_df
+    pool = get_recipe_df(user_id=user_id)
+    required = {"breakfast", "lunch", "dinner"}
+    available = set()
+    for slots in pool["meal_slots"]:
+        if isinstance(slots, list):
+            available.update(slots)
+    missing_slots = sorted(required - available)
+    if missing_slots:
+        return {
+            "error": (
+                f"Your cookbook is missing recipes for: {', '.join(missing_slots)}. "
+                "Add at least one recipe per required slot (breakfast, a main dish "
+                "for lunch/dinner) or restore some default recipes before I can "
+                "build a plan."
+            )
+        }
+
     # Build the request message for the planning agent
     if plan_type == "week":
         request = f"Build me a {n_days}-day meal plan."

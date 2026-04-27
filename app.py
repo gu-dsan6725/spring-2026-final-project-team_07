@@ -275,11 +275,8 @@ with left:
 
         if prompt := st.chat_input("Ask me about your meals or profile..."):
             st.session_state.messages.append({"role": "user", "content": prompt})
-            st.chat_message("user").write(prompt)
-            with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
-                    response = str(st.session_state.agent(prompt))
-                st.write(response)
+            with st.spinner("Thinking..."):
+                response = str(st.session_state.agent(prompt))
             st.session_state.messages.append({"role": "assistant", "content": response})
 
             # If the agent built a meal plan, capture it for the right panel.
@@ -288,7 +285,7 @@ with left:
                 raw = _orch_tools.last_plan_result["plan"]
                 st.session_state.week_plan = raw if isinstance(raw, list) else [raw]
                 _orch_tools.last_plan_result = None
-                st.rerun()
+            st.rerun()
 
     with tab_profile:
         if st.button("Refresh Profile"):
@@ -585,6 +582,8 @@ with right:
             )
 
         for i, day in enumerate(plan):
+            if "totals" not in day:
+                day["totals"] = _recalc_totals(day)
             t = day["totals"]
             header = f"Day {i + 1}  —  {t['calories']:.0f} kcal | {t['protein']:.1f}g protein | ${t['cost']:.2f}"
             with st.expander(header, expanded=(i == 0)):
