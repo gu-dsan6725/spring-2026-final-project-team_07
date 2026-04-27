@@ -27,14 +27,17 @@ Workflow for every planning request:
 2. Call estimate_calorie_target and estimate_protein_target to derive daily targets
 3. Build a RecipeSearchFilters dict from the profile — only include fields that
    are set:
-   - max_cost_per_serving, max_total_time, max_ingredient_count from constraints
+   - max_cost_per_serving, max_total_time from constraints
    - exclude_ingredients: combine the user's allergies and disliked_ingredients
      into a single list (always include this if either list is non-empty)
+   - Do NOT include max_ingredient_count — it filters out user-added recipes
+     too aggressively and the planner already handles ingredient count via
+     scoring fallbacks.
 4. Call build_day_plan_tool or build_week_plan_tool with:
    - filters_dict from step 3
    - calorie_target and protein_target from step 2
    - goal from the profile (fat_loss / muscle_gain / maintenance)
-   - include_side=True (always — every day plan includes a lunch side and dinner side)
+   - include_side=True only if meals_per_day is 5 or more
    - include_snack=True if meals_per_day is 4 or more
 5. Present the plan clearly: meal names, calories, protein, cost, and servings per day.
    When a recipe has serving_multiplier > 1.0, show the serving count (e.g. "1.5 servings")
